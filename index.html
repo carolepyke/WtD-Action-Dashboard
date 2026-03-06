@@ -4,109 +4,171 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Action Dashboard — Words That Deliver</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --cream: #FDF6E8; --gold: #A07820; --gold-light: #C9A84C;
       --dark: #2C1F0E; --muted: rgba(44,31,14,0.45);
       --border: rgba(160,120,32,0.18); --card-bg: rgba(255,255,255,0.95);
+      --sidebar-w: 260px;
     }
-    body { background: var(--cream); font-family: 'Jost', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    html, body { height: 100%; }
+    body { background: var(--cream); font-family: 'Jost', sans-serif; overflow-x: hidden; }
     body::before {
-      content: ''; position: fixed; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 10% 0%, rgba(201,168,76,0.10) 0%, transparent 60%),
-                  radial-gradient(ellipse 60% 50% at 90% 100%, rgba(160,120,32,0.07) 0%, transparent 60%);
-      pointer-events: none; z-index: 0;
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 0% 0%, rgba(201,168,76,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 100% 100%, rgba(160,120,32,0.07) 0%, transparent 60%);
     }
-    .star { position: fixed; pointer-events: none; z-index: 0; opacity: 0.10; }
-    .wrap { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 48px 24px 100px; }
-    .header { text-align: center; margin-bottom: 44px; }
-    .eyebrow { font-size: 10px; letter-spacing: 5px; color: var(--gold); opacity: 0.7; margin-bottom: 14px; text-transform: uppercase; }
-    .header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(34px, 5vw, 50px); font-weight: 300; color: var(--dark); line-height: 1.1; margin-bottom: 8px; }
-    .header-sub { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-style: italic; color: var(--gold); margin-bottom: 28px; }
-    .today-pill { display: inline-block; background: white; border: 1px solid var(--border); border-radius: 100px; padding: 10px 24px; font-size: 14px; color: var(--muted); font-style: italic; box-shadow: 0 2px 16px rgba(160,120,32,0.07); }
+    .layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+    .sidebar {
+      width: var(--sidebar-w); background: white; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100; transition: transform 0.3s ease;
+    }
+    .sidebar-brand { padding: 28px 20px 20px; border-bottom: 1px solid var(--border); }
+    .sidebar-eyebrow { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); opacity: 0.7; margin-bottom: 4px; }
+    .sidebar-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 400; color: var(--dark); line-height: 1.3; }
+    .sidebar-user { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .sidebar-section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); padding: 20px 20px 8px; }
+    .project-list { flex: 1; overflow-y: auto; padding: 0 10px; }
+    .project-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 10px; cursor: pointer; transition: all 0.15s; margin-bottom: 2px; position: relative;
+    }
+    .project-item:hover { background: rgba(160,120,32,0.06); }
+    .project-item.active { background: rgba(160,120,32,0.1); }
+    .project-item.active::before {
+      content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+      width: 3px; border-radius: 0 3px 3px 0; background: var(--gold);
+    }
+    .project-dot { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; background: rgba(160,120,32,0.08); }
+    .project-info { flex: 1; min-width: 0; }
+    .project-name { font-size: 13px; color: var(--dark); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .project-count { font-size: 11px; color: var(--muted); }
+    .project-delete { opacity: 0; font-size: 14px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: all 0.15s; flex-shrink: 0; }
+    .project-item:hover .project-delete { opacity: 1; }
+    .project-delete:hover { color: #C0392B; background: rgba(192,57,43,0.08); }
+    .new-project-btn {
+      margin: 8px 10px 0; padding: 10px 14px; border-radius: 10px;
+      border: 1.5px dashed var(--border); background: none; font-family: 'Jost', sans-serif;
+      font-size: 13px; color: var(--muted); cursor: pointer; width: calc(100% - 20px);
+      text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+    }
+    .new-project-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(160,120,32,0.04); }
+    .new-project-form { margin: 8px 10px; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(253,246,232,0.5); }
+    .new-project-form input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: 'Jost', sans-serif; color: var(--dark); background: white; outline: none; margin-bottom: 8px; }
+    .new-project-form input:focus { border-color: var(--gold); }
+    .new-project-form-btns { display: flex; gap: 6px; }
+    .new-project-form-btns button { flex: 1; padding: 7px; border-radius: 7px; font-size: 12px; font-family: 'Jost', sans-serif; cursor: pointer; border: none; }
+    .btn-create { background: var(--gold); color: white; }
+    .btn-cancel { background: rgba(160,120,32,0.08); color: var(--muted); }
+    .emoji-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .emoji-opt { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+    .emoji-opt.selected { border-color: var(--gold); background: rgba(160,120,32,0.1); }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); font-family: 'Cormorant Garamond', serif; font-style: italic; }
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 44px 36px 80px; max-width: calc(100vw - var(--sidebar-w)); }
+    .main-header { margin-bottom: 36px; }
+    .main-eyebrow { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); opacity: 0.7; margin-bottom: 8px; }
+    .main-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 42px); font-weight: 300; color: var(--dark); line-height: 1.15; margin-bottom: 6px; }
+    .main-sub { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--gold); margin-bottom: 20px; }
+    .today-pill { display: inline-block; background: white; border: 1px solid var(--border); border-radius: 100px; padding: 8px 20px; font-size: 13px; color: var(--muted); font-style: italic; box-shadow: 0 2px 12px rgba(160,120,32,0.07); }
     .today-pill strong { color: var(--dark); font-style: normal; font-weight: 500; }
-    .view-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
-    .section-label { font-size: 10px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
-    .view-toggle { display: flex; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; box-shadow: 0 1px 8px rgba(160,120,32,0.06); }
-    .view-btn { padding: 7px 18px; border-radius: 8px; border: none; font-size: 13px; font-family: 'Jost', sans-serif; cursor: pointer; transition: all 0.2s ease; color: var(--muted); background: none; display: flex; align-items: center; gap: 6px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .toolbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .count-badge { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .view-toggle { display: flex; background: white; border: 1px solid var(--border); border-radius: 9px; padding: 3px; gap: 2px; box-shadow: 0 1px 6px rgba(160,120,32,0.06); }
+    .view-btn { padding: 6px 16px; border-radius: 7px; border: none; font-size: 12px; font-family: 'Jost', sans-serif; cursor: pointer; transition: all 0.2s; color: var(--muted); background: none; display: flex; align-items: center; gap: 5px; }
     .view-btn.active { background: var(--gold); color: white; }
-    .add-bar { display: flex; gap: 10px; margin-bottom: 32px; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; box-shadow: 0 2px 16px rgba(160,120,32,0.06); flex-wrap: wrap; }
-    .add-bar input, .add-bar select { border: 1px solid var(--border); background: rgba(253,246,232,0.5); border-radius: 9px; padding: 9px 14px; font-size: 15px; font-family: 'Jost', sans-serif; color: var(--dark); outline: none; transition: border-color 0.2s; }
+    .add-bar { display: flex; gap: 10px; margin-bottom: 28px; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; box-shadow: 0 2px 12px rgba(160,120,32,0.06); flex-wrap: wrap; }
+    .add-bar input, .add-bar select { border: 1px solid var(--border); background: rgba(253,246,232,0.5); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-family: 'Jost', sans-serif; color: var(--dark); outline: none; transition: border-color 0.2s; }
     .add-bar input:focus, .add-bar select:focus { border-color: var(--gold); }
-    .add-bar input { flex: 1; min-width: 160px; }
-    .add-bar button { padding: 9px 22px; border-radius: 9px; border: none; background: var(--gold); color: white; font-family: 'Jost', sans-serif; font-size: 14px; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+    .add-bar input { flex: 1; min-width: 150px; }
+    .add-bar button { padding: 8px 20px; border-radius: 8px; border: none; background: var(--gold); color: white; font-family: 'Jost', sans-serif; font-size: 13px; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
     .add-bar button:hover { opacity: 0.85; }
-    .cards-canvas { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; margin-bottom: 48px; }
-    .action-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 26px 22px 22px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease; animation: cardIn 0.45s ease backwards; cursor: default; }
-    .action-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, var(--gold)); border-radius: 18px 18px 0 0; }
-    .action-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 10px 36px rgba(160,120,32,0.13); }
-    .card-done-btn { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent; transition: all 0.2s; }
+    .cards-canvas { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; margin-bottom: 40px; }
+    .action-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 22px 20px 18px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease; animation: cardIn 0.4s ease backwards; cursor: default; }
+    .action-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, var(--gold)); border-radius: 16px 16px 0 0; }
+    .action-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 10px 32px rgba(160,120,32,0.12); }
+    .card-done-btn { position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; transition: all 0.2s; }
     .action-card:hover .card-done-btn { border-color: var(--accent, var(--gold)); color: var(--accent, var(--gold)); }
     .card-done-btn:hover { background: var(--accent, var(--gold)) !important; color: white !important; }
-    .card-icon { font-size: 38px; margin-bottom: 14px; display: block; line-height: 1; }
-    .card-cat-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent, var(--gold)); margin-bottom: 6px; font-weight: 500; }
-    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--dark); line-height: 1.4; margin-bottom: 8px; }
-    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 18px; }
-    .card-cta { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent, var(--gold)); font-weight: 500; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 6px; transition: gap 0.2s; }
-    .action-card:hover .card-cta { gap: 10px; }
-    .list-view { display: flex; flex-direction: column; gap: 0; margin-bottom: 48px; }
-    .list-item { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: white; border: 1px solid var(--border); border-bottom: none; transition: background 0.15s; animation: cardIn 0.35s ease backwards; }
-    .list-item:first-child { border-radius: 14px 14px 0 0; }
-    .list-item:last-child { border-radius: 0 0 14px 14px; border-bottom: 1px solid var(--border); }
-    .list-item:only-child { border-radius: 14px; border-bottom: 1px solid var(--border); }
-    .list-item:hover { background: rgba(253,246,232,0.7); }
-    .list-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .list-icon { font-size: 22px; flex-shrink: 0; }
+    .card-icon { font-size: 34px; margin-bottom: 12px; display: block; line-height: 1; }
+    .card-cat-label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent, var(--gold)); margin-bottom: 5px; font-weight: 600; }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--dark); line-height: 1.4; margin-bottom: 14px; }
+    .card-cta { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent, var(--gold)); font-weight: 600; background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 5px; transition: gap 0.2s; }
+    .action-card:hover .card-cta { gap: 8px; }
+    .list-view { display: flex; flex-direction: column; margin-bottom: 40px; }
+    .list-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: white; border: 1px solid var(--border); border-bottom: none; transition: background 0.15s; animation: cardIn 0.3s ease backwards; }
+    .list-item:first-child { border-radius: 12px 12px 0 0; }
+    .list-item:last-child { border-radius: 0 0 12px 12px; border-bottom: 1px solid var(--border); }
+    .list-item:only-child { border-radius: 12px; border-bottom: 1px solid var(--border); }
+    .list-item:hover { background: rgba(253,246,232,0.6); }
+    .list-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .list-icon { font-size: 20px; flex-shrink: 0; }
     .list-content { flex: 1; min-width: 0; }
-    .list-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--dark); margin-bottom: 2px; }
-    .list-meta { font-size: 12px; color: var(--muted); }
-    .list-done-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: white; font-size: 12px; font-family: 'Jost', sans-serif; color: var(--muted); cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
+    .list-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--dark); }
+    .list-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .list-done-btn { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: white; font-size: 11px; font-family: 'Jost', sans-serif; color: var(--muted); cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
     .list-done-btn:hover { background: var(--gold); color: white; border-color: var(--gold); }
-    .empty-state { text-align: center; padding: 72px 0; color: var(--muted); }
-    .empty-state .e-icon { font-size: 52px; margin-bottom: 14px; opacity: 0.35; }
-    .empty-state p { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; }
-    .evidence-section { margin-top: 12px; }
-    .evidence-header { display: flex; align-items: center; gap: 14px; cursor: pointer; padding: 18px 0; user-select: none; border-top: 1px solid var(--border); }
-    .evidence-title-text { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; color: var(--dark); }
-    .evidence-count { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.25); border-radius: 20px; padding: 3px 12px; font-size: 12px; color: #27AE60; }
-    .evidence-arrow { margin-left: auto; font-size: 12px; color: var(--muted); transition: transform 0.25s; }
+    .empty-state { text-align: center; padding: 64px 0; color: var(--muted); }
+    .empty-state .e-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+    .empty-state p { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-style: italic; }
+    .no-project { display: flex; align-items: center; justify-content: center; min-height: 60vh; text-align: center; }
+    .no-project-inner { max-width: 380px; }
+    .no-project-icon { font-size: 56px; margin-bottom: 20px; opacity: 0.25; }
+    .no-project h2 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: var(--dark); margin-bottom: 10px; }
+    .no-project p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .evidence-section { margin-top: 8px; }
+    .evidence-header { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 16px 0; user-select: none; border-top: 1px solid var(--border); }
+    .evidence-title { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 300; color: var(--dark); }
+    .evidence-count { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.25); border-radius: 20px; padding: 2px 10px; font-size: 11px; color: #27AE60; }
+    .evidence-arrow { margin-left: auto; font-size: 11px; color: var(--muted); transition: transform 0.25s; }
     .evidence-arrow.open { transform: rotate(180deg); }
-    .journal { padding: 28px 0 0; }
-    .journal-month { margin-bottom: 32px; }
-    .journal-month-label { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding-left: 28px; }
+    .journal { padding: 20px 0 0; }
+    .journal-month { margin-bottom: 28px; }
+    .journal-month-label { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; padding-left: 24px; }
     .journal-entries { position: relative; }
-    .journal-entries::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 1px; background: var(--border); }
-    .journal-entry { display: flex; gap: 20px; align-items: flex-start; padding: 12px 0; animation: cardIn 0.35s ease backwards; position: relative; }
-    .journal-dot { width: 20px; height: 20px; border-radius: 50%; background: white; border: 2px solid #27AE60; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; position: relative; z-index: 1; }
-    .journal-body { flex: 1; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; border-left: 3px solid #27AE60; position: relative; }
-    .journal-body-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--dark); margin-bottom: 4px; }
-    .journal-body-meta { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-    .journal-body-cat { display: inline-flex; align-items: center; gap: 4px; background: rgba(160,120,32,0.07); border-radius: 10px; padding: 2px 8px; font-size: 11px; color: var(--gold); }
-    .journal-restore { position: absolute; top: 10px; right: 12px; font-size: 11px; color: rgba(44,31,14,0.2); background: none; border: none; cursor: pointer; font-family: 'Jost', sans-serif; transition: color 0.15s; }
+    .journal-entries::before { content: ''; position: absolute; left: 9px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .journal-entry { display: flex; gap: 16px; align-items: flex-start; padding: 10px 0; position: relative; animation: cardIn 0.3s ease backwards; }
+    .journal-dot { width: 18px; height: 18px; border-radius: 50%; background: white; border: 2px solid #27AE60; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; position: relative; z-index: 1; }
+    .journal-body { flex: 1; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; border-left: 3px solid #27AE60; position: relative; }
+    .journal-body-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--dark); margin-bottom: 4px; }
+    .journal-body-meta { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .journal-body-cat { display: inline-flex; align-items: center; gap: 3px; background: rgba(160,120,32,0.07); border-radius: 8px; padding: 1px 7px; font-size: 10px; color: var(--gold); }
+    .journal-restore { position: absolute; top: 8px; right: 10px; font-size: 11px; color: rgba(44,31,14,0.2); background: none; border: none; cursor: pointer; font-family: 'Jost', sans-serif; transition: color 0.15s; }
     .journal-body:hover .journal-restore { color: var(--gold); }
-    .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }
-    .gate-inner { max-width: 440px; }
-    .gate-icon { font-size: 60px; margin-bottom: 20px; }
-    .gate h1 { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 300; color: var(--dark); margin-bottom: 8px; }
-    .gate p { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-style: italic; color: var(--gold); margin-bottom: 10px; }
-    .gate-desc { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 32px; }
-    .gate input { width: 100%; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; font-size: 17px; font-family: 'Jost', sans-serif; color: var(--dark); outline: none; margin-bottom: 12px; text-align: center; box-shadow: 0 2px 12px rgba(160,120,32,0.07); }
+    .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: var(--cream); }
+    .gate-inner { max-width: 420px; }
+    .gate-icon { font-size: 56px; margin-bottom: 18px; }
+    .gate h1 { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: var(--dark); margin-bottom: 6px; }
+    .gate p { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: var(--gold); margin-bottom: 10px; }
+    .gate-desc { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 28px; }
+    .gate input { width: 100%; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 13px 18px; font-size: 16px; font-family: 'Jost', sans-serif; color: var(--dark); outline: none; margin-bottom: 10px; text-align: center; box-shadow: 0 2px 12px rgba(160,120,32,0.07); }
     .gate input:focus { border-color: var(--gold); }
-    .gate button { padding: 14px 40px; border-radius: 12px; border: none; background: var(--gold); color: white; font-size: 16px; font-family: 'Jost', sans-serif; cursor: pointer; box-shadow: 0 4px 20px rgba(160,120,32,0.28); transition: transform 0.15s, box-shadow 0.15s; }
-    .gate button:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(160,120,32,0.35); }
-    .footer { text-align: center; margin-top: 64px; font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
-    .footer em { font-family: 'Cormorant Garamond', serif; font-size: 15px; display: block; margin-bottom: 4px; color: rgba(44,31,14,0.5); }
-    @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .gate button { padding: 13px 36px; border-radius: 10px; border: none; background: var(--gold); color: white; font-size: 15px; font-family: 'Jost', sans-serif; cursor: pointer; box-shadow: 0 4px 18px rgba(160,120,32,0.28); transition: transform 0.15s; }
+    .gate button:hover { transform: translateY(-2px); }
+    .footer { text-align: center; margin-top: 56px; font-size: 11px; color: var(--muted); }
+    .footer em { font-family: 'Cormorant Garamond', serif; font-size: 14px; display: block; margin-bottom: 4px; }
+    .sidebar-toggle { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; width: 36px; height: 36px; border-radius: 8px; background: white; border: 1px solid var(--border); cursor: pointer; font-size: 16px; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(160,120,32,0.12); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(44,31,14,0.3); z-index: 99; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-toggle { display: flex; }
+      .sidebar-overlay.open { display: block; }
+      .main { margin-left: 0; padding: 60px 20px 60px; max-width: 100vw; }
+    }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .star { position: fixed; pointer-events: none; z-index: 0; opacity: 0.09; }
   </style>
 </head>
 <body>
-<svg class="star" style="top:7%;left:2%;width:44px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
-<svg class="star" style="top:22%;right:3%;width:28px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
-<svg class="star" style="bottom:28%;left:5%;width:22px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
-<svg class="star" style="bottom:12%;right:6%;width:38px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
-<svg class="star" style="top:52%;right:1%;width:18px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
+<svg class="star" style="top:8%;left:calc(var(--sidebar-w) + 2%);width:40px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
+<svg class="star" style="top:25%;right:3%;width:26px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
+<svg class="star" style="bottom:30%;right:8%;width:36px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
+<svg class="star" style="bottom:15%;left:calc(var(--sidebar-w) + 5%);width:20px" viewBox="0 0 48 48"><path d="M24 4 L26 22 L44 24 L26 26 L24 44 L22 26 L4 24 L22 22 Z" fill="#A07820"/></svg>
 <div id="root"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -120,17 +182,47 @@ const CATS = [
   { id:"mindset",   label:"Mindset",    icon:"🌱", color:"#27AE60" },
   { id:"connect",   label:"Connect",    icon:"🤝", color:"#E67E22" },
   { id:"create",    label:"Create",     icon:"🎨", color:"#8E44AD" },
+  { id:"build",     label:"Build",      icon:"🏗️", color:"#2980B9" },
+  { id:"launch",    label:"Launch",     icon:"🚀", color:"#E74C3C" },
+  { id:"content",   label:"Content",    icon:"✍️", color:"#8E44AD" },
+  { id:"admin",     label:"Admin",      icon:"📋", color:"#7F8C8D" },
 ];
-const DEFAULTS = [
-  { id:1, title:"Write your Sparkle Statement",          desc:"Who you are, what you do and the light you bring.",      icon:"✨", cat:"sparkle",    color:"#A07820" },
-  { id:2, title:"Define your ideal audience",            desc:"Who are you here to serve? Be specific and bold.",       icon:"🎯", cat:"position",   color:"#C0527A" },
-  { id:3, title:"Update your LinkedIn headline",         desc:"Let your positioning speak before you do.",              icon:"💼", cat:"visibility", color:"#4A7B9D" },
-  { id:4, title:"Share one piece of thought leadership", desc:"Your perspective matters. Put it where it can be seen.", icon:"📣", cat:"visibility", color:"#4A7B9D" },
-  { id:5, title:"Complete your Me Map",                  desc:"Map your strengths, values and vision in one place.",    icon:"🗺️", cat:"sparkle",    color:"#A07820" },
-  { id:6, title:"Record three wins this week",           desc:"Evidence of your value, captured before you forget.",    icon:"🌟", cat:"mindset",    color:"#27AE60" },
-  { id:7, title:"Reach out to one new connection",       desc:"One conversation can shift everything.",                 icon:"🤝", cat:"connect",    color:"#E67E22" },
-  { id:8, title:"Create your positioning statement",     desc:"Clear, confident and unmistakably you.",                 icon:"💎", cat:"position",   color:"#C0527A" },
+const SPA_LAUNCH_ACTIONS = [
+  { id:1,  title:"Create Circle community — 'The Personal Branding SPA'",     icon:"🏗️", cat:"build",    color:"#2980B9" },
+  { id:2,  title:"Connect custom domain: members.thepersonalbrandingspa.com", icon:"🌐", cat:"build",    color:"#2980B9" },
+  { id:3,  title:"Set up 3 membership tiers: Free Discovery / SPA Member / Premium", icon:"🎯", cat:"build", color:"#2980B9" },
+  { id:4,  title:"Set Space access permissions per tier",                      icon:"🔒", cat:"build",    color:"#2980B9" },
+  { id:5,  title:"Upload custom cover images for each of the 11 Spaces",      icon:"🖼️", cat:"build",    color:"#2980B9" },
+  { id:6,  title:"Write Space descriptions for all 11 rooms",                 icon:"✍️", cat:"content",  color:"#8E44AD" },
+  { id:7,  title:"Connect Stripe payment integration",                        icon:"💳", cat:"build",    color:"#2980B9" },
+  { id:8,  title:"Update WordPress 'Members' button to link to Circle",       icon:"🔗", cat:"build",    color:"#2980B9" },
+  { id:9,  title:"Set Entry / Reception as default landing Space",            icon:"🚪", cat:"build",    color:"#2980B9" },
+  { id:10, title:"Test full member journey: sign-up → login → first Space",  icon:"✅", cat:"build",    color:"#2980B9" },
+  { id:11, title:"Record SPA welcome video for Entry / Reception",            icon:"🎥", cat:"content",  color:"#8E44AD" },
+  { id:12, title:"Write and upload SPA Orientation Guide",                    icon:"📖", cat:"content",  color:"#8E44AD" },
+  { id:13, title:"Create pinned 'Start Here' post in Entry / Reception",      icon:"📌", cat:"content",  color:"#8E44AD" },
+  { id:14, title:"Write welcome post for every Space (all 11 rooms)",         icon:"💬", cat:"content",  color:"#8E44AD" },
+  { id:15, title:"Create first Sparkle identity prompt for Sparkle Wing",     icon:"✨", cat:"content",  color:"#8E44AD" },
+  { id:16, title:"Prepare first weekly Spark prompt for Sparks Lounge",       icon:"⚡", cat:"content",  color:"#8E44AD" },
+  { id:17, title:"Upload Sparkle Blueprint to Sparks Lounge",                 icon:"📋", cat:"content",  color:"#8E44AD" },
+  { id:18, title:"Create first confidence drill for Sparkle Gym",             icon:"💪", cat:"content",  color:"#8E44AD" },
+  { id:19, title:"Write first purpose reflection prompt for Faith Gym",       icon:"🕊️", cat:"content",  color:"#8E44AD" },
+  { id:20, title:"Upload Me Map template to Positioning Studio",              icon:"🗺️", cat:"content",  color:"#8E44AD" },
+  { id:21, title:"Create member introduction thread in Central Foyer",        icon:"🤝", cat:"connect",  color:"#E67E22" },
+  { id:22, title:"Set up onboarding email sequence",                          icon:"📧", cat:"admin",    color:"#7F8C8D" },
+  { id:23, title:"Upload Sparkle philosophy to Foundation Collection",        icon:"💎", cat:"sparkle",  color:"#A07820" },
+  { id:24, title:"Create first Amplify Wing visibility strategy post",        icon:"📣", cat:"visibility",color:"#4A7B9D" },
+  { id:25, title:"Finalise SPA Ecosystem & Experience Guide 2026",            icon:"📘", cat:"launch",   color:"#E74C3C" },
+  { id:26, title:"Finalise Circle Architecture Plan",                         icon:"🏛️", cat:"launch",   color:"#E74C3C" },
+  { id:27, title:"Complete Circle build — all 11 Spaces live and tested",     icon:"🚀", cat:"launch",   color:"#E74C3C" },
+  { id:28, title:"Soft launch: invite founding members",                      icon:"🌱", cat:"launch",   color:"#E74C3C" },
+  { id:29, title:"Publish launch announcement on LinkedIn",                   icon:"💼", cat:"launch",   color:"#E74C3C" },
+  { id:30, title:"Send launch email to existing Words That Deliver audience", icon:"📨", cat:"launch",   color:"#E74C3C" },
+  { id:31, title:"Go live: open Free Discovery access",                       icon:"🟢", cat:"launch",   color:"#E74C3C" },
+  { id:32, title:"Host first Monthly SPA Gathering in Central Foyer",         icon:"🎉", cat:"launch",   color:"#E74C3C" },
+  { id:33, title:"Announce Sparkle Watercooler community officially open",    icon:"💫", cat:"launch",   color:"#E74C3C" },
 ];
+const EMOJIS = ["📁","🎯","✨","🚀","💎","🌱","🏗️","📘","🎨","💼","🌟","⚡","🦋","🔥","🌸"];
 const PROMPTS = [
   "What one thing would make today feel like a win?",
   "Which action is calling you today?",
@@ -138,148 +230,257 @@ const PROMPTS = [
   "Choose one thing. Just one. Make it count.",
   "What would future you thank you for doing today?",
 ];
-function getKey() { const m = new URLSearchParams(window.location.search).get("member"); return m ? `spa_v2_${m}` : "spa_v2_guest"; }
-function getProject() { const p = new URLSearchParams(window.location.search).get("project"); return p ? decodeURIComponent(p) : null; }
-function load() { try { return JSON.parse(localStorage.getItem(getKey())); } catch { return null; } }
-function save(d) { try { localStorage.setItem(getKey(), JSON.stringify(d)); } catch {} }
+const STORE_KEY    = (id) => `wtd_dash_${id}`;
+const USER_KEY     = "wtd_user";
+const PROJECTS_KEY = "wtd_projects";
+function loadUser()      { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch { return null; } }
+function saveUser(d)     { try { localStorage.setItem(USER_KEY, JSON.stringify(d)); } catch {} }
+function loadProjects()  { try { return JSON.parse(localStorage.getItem(PROJECTS_KEY)) || []; } catch { return []; } }
+function saveProjects(p) { try { localStorage.setItem(PROJECTS_KEY, JSON.stringify(p)); } catch {} }
+function loadProject(id) { try { return JSON.parse(localStorage.getItem(STORE_KEY(id))); } catch { return null; } }
+function saveProject(id,d){ try { localStorage.setItem(STORE_KEY(id), JSON.stringify(d)); } catch {} }
 function greeting() { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; }
 function groupByMonth(items) {
-  const groups = {};
+  const g = {};
   items.forEach(item => {
-    const key = new Date(item.doneAt).toLocaleDateString("en-GB", { month:"long", year:"numeric" });
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
+    const k = new Date(item.doneAt).toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+    if (!g[k]) g[k] = []; g[k].push(item);
   });
-  return groups;
+  return g;
 }
 function App() {
-  const [name, setName]           = useState("");
+  const [userName, setUserName]   = useState("");
   const [nameInput, setNameInput] = useState("");
+  const [loaded, setLoaded]       = useState(false);
+  const [projects, setProjects]   = useState([]);
+  const [activeId, setActiveId]   = useState(null);
   const [actions, setActions]     = useState([]);
   const [done, setDone]           = useState([]);
   const [view, setView]           = useState("visual");
   const [showEvidence, setShowEvidence] = useState(false);
   const [newTitle, setNewTitle]   = useState("");
   const [newCat, setNewCat]       = useState("sparkle");
-  const [loaded, setLoaded]       = useState(false);
-  const project                   = getProject();
-  useEffect(() => { const s = load(); if (s?.name) { setName(s.name); setActions(s.actions ?? DEFAULTS); setDone(s.done ?? []); setLoaded(true); } }, []);
-  useEffect(() => { if (!name) return; save({ name, actions, done }); }, [name, actions, done]);
-  function enter(n) { const s = load(); setName(n); setActions(s?.actions ?? DEFAULTS); setDone(s?.done ?? []); setLoaded(true); }
-  function markDone(id) { const item = actions.find(a => a.id === id); if (!item) return; setActions(p => p.filter(a => a.id !== id)); setDone(p => [{ ...item, doneAt: new Date().toISOString() }, ...p]); }
-  function restore(id) { const item = done.find(d => d.id === id); if (!item) return; setDone(p => p.filter(d => d.id !== id)); setActions(p => [{ ...item, doneAt: undefined }, ...p]); }
-  function addAction() { if (!newTitle.trim()) return; const cat = CATS.find(c => c.id === newCat) || CATS[0]; setActions(p => [{ id: Date.now(), title: newTitle.trim(), desc: "", icon: cat.icon, cat: newCat, color: cat.color }, ...p]); setNewTitle(""); }
-  if (!loaded || !name) return (
+  const [showNewProj, setShowNewProj] = useState(false);
+  const [newProjName, setNewProjName] = useState("");
+  const [newProjEmoji, setNewProjEmoji] = useState("📁");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const u = loadUser();
+    if (u?.name) {
+      setUserName(u.name);
+      const projs = loadProjects();
+      setProjects(projs);
+      if (projs.length > 0) selectProject(projs[0].id, projs);
+      setLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => { if (!activeId) return; saveProject(activeId, { actions, done }); }, [actions, done, activeId]);
+
+  function selectProject(id, projList) {
+    const proj = (projList || projects).find(p => p.id === id);
+    if (!proj) return;
+    setActiveId(id);
+    const data = loadProject(id);
+    if (proj.id === "spa_launch" && !data) {
+      setActions(SPA_LAUNCH_ACTIONS.map(a => ({...a})));
+      setDone([]);
+    } else {
+      setActions(data?.actions || []);
+      setDone(data?.done || []);
+    }
+    setShowEvidence(false);
+  }
+
+  function enter(n) {
+    saveUser({ name: n });
+    setUserName(n);
+    const spaProj = { id:"spa_launch", name:"Personal Branding SPA", emoji:"✨", createdAt: new Date().toISOString() };
+    const projs = [spaProj];
+    saveProjects(projs);
+    setProjects(projs);
+    selectProject("spa_launch", projs);
+    setLoaded(true);
+  }
+
+  function createProject() {
+    if (!newProjName.trim()) return;
+    const id = "proj_" + Date.now();
+    const proj = { id, name: newProjName.trim(), emoji: newProjEmoji, createdAt: new Date().toISOString() };
+    const updated = [...projects, proj];
+    saveProjects(updated); setProjects(updated);
+    selectProject(id, updated);
+    setNewProjName(""); setNewProjEmoji("📁"); setShowNewProj(false);
+  }
+
+  function deleteProject(id, e) {
+    e.stopPropagation();
+    if (!window.confirm("Remove this project?")) return;
+    const updated = projects.filter(p => p.id !== id);
+    saveProjects(updated); setProjects(updated);
+    if (activeId === id) {
+      if (updated.length > 0) selectProject(updated[0].id, updated);
+      else { setActiveId(null); setActions([]); setDone([]); }
+    }
+  }
+
+  function markDone(id) {
+    const item = actions.find(a => a.id === id); if (!item) return;
+    setActions(p => p.filter(a => a.id !== id));
+    setDone(p => [{ ...item, doneAt: new Date().toISOString() }, ...p]);
+  }
+
+  function restore(id) {
+    const item = done.find(d => d.id === id); if (!item) return;
+    setDone(p => p.filter(d => d.id !== id));
+    setActions(p => [{ ...item, doneAt: undefined }, ...p]);
+  }
+
+  function addAction() {
+    if (!newTitle.trim() || !activeId) return;
+    const cat = CATS.find(c => c.id === newCat) || CATS[0];
+    setActions(p => [{ id: Date.now(), title: newTitle.trim(), icon: cat.icon, cat: newCat, color: cat.color }, ...p]);
+    setNewTitle("");
+  }
+
+  const activeProject = projects.find(p => p.id === activeId);
+  const monthGroups   = groupByMonth(done);
+
+  if (!loaded || !userName) return (
     <div className="gate">
       <div className="gate-inner">
         <div className="gate-icon">✨</div>
-        <div style={{fontSize:10,letterSpacing:5,color:"#A07820",opacity:.7,marginBottom:16,fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Words That Deliver</div>
+        <div style={{fontSize:9,letterSpacing:5,color:"#A07820",opacity:.7,marginBottom:14,fontFamily:"'Jost',sans-serif",textTransform:"uppercase"}}>Words That Deliver</div>
         <h1>The Personal Brand Strategy Studio</h1>
-        <p>Your Action Dashboard</p>
-        <div className="gate-desc">A calm, spacious place to see what calls to you — and move towards it in your own way.</div>
-        <input value={nameInput} onChange={e=>setNameInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&nameInput.trim()&&enter(nameInput.trim())} placeholder="Your first name…" autoFocus/>
+        <p>Action Dashboard</p>
+        <div className="gate-desc">Your projects, your actions, your evidence — all in one calm space.</div>
+        <input value={nameInput} onChange={e=>setNameInput(e.target.value)}
+          onKeyDown={e=>e.key==="Enter"&&nameInput.trim()&&enter(nameInput.trim())}
+          placeholder="Your first name…" autoFocus/>
         <button onClick={()=>nameInput.trim()&&enter(nameInput.trim())}>Enter your space →</button>
       </div>
     </div>
   );
-  const monthGroups = groupByMonth(done);
+
   return (
-    <div className="wrap">
-      <div className="header">
-        <div className="eyebrow">Words That Deliver · The Personal Brand Strategy Studio</div>
-        <h1>{greeting()}, {name}</h1>
-        <div className="header-sub">{project ? project : "Your Action Dashboard"}</div>
-        <div className="today-pill"><strong>Today — </strong>{PROMPTS[new Date().getDay() % PROMPTS.length]}</div>
-      </div>
-      <div className="add-bar">
-        <input value={newTitle} onChange={e=>setNewTitle(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addAction()} placeholder="Add a new action…"/>
-        <select value={newCat} onChange={e=>setNewCat(e.target.value)}>{CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}</select>
-        <button onClick={addAction}>Add</button>
-      </div>
-      <div className="view-bar">
-        <span className="section-label">{actions.length} {actions.length === 1 ? "action" : "actions"} remaining</span>
-        <div className="view-toggle">
-          <button className={`view-btn${view==="visual"?" active":""}`} onClick={()=>setView("visual")}>▦ Visual</button>
-          <button className={`view-btn${view==="list"?" active":""}`} onClick={()=>setView("list")}>☰ List</button>
+    <div className="layout">
+      <div className={`sidebar-overlay${sidebarOpen?" open":""}`} onClick={()=>setSidebarOpen(false)}/>
+      <button className="sidebar-toggle" onClick={()=>setSidebarOpen(s=>!s)}>☰</button>
+      <div className={`sidebar${sidebarOpen?" open":""}`}>
+        <div className="sidebar-brand">
+          <div className="sidebar-eyebrow">Words That Deliver</div>
+          <div className="sidebar-title">The Personal Brand<br/>Strategy Studio</div>
+          <div className="sidebar-user">{greeting()}, {userName}</div>
         </div>
-      </div>
-      {view === "visual" && (actions.length === 0 ? (
-        <div className="empty-state"><div className="e-icon">🌿</div><p>Your canvas is clear. Add a new action above.</p></div>
-      ) : (
-        <div className="cards-canvas">
-          {actions.map((a,i) => (
-            <div key={a.id} className="action-card" style={{"--accent":a.color, animationDelay:`${i*0.055}s`}}>
-              <button className="card-done-btn" title="Mark as done" onClick={()=>markDone(a.id)}>✓</button>
-              <span className="card-icon">{a.icon}</span>
-              <div className="card-cat-label">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
-              <div className="card-title">{a.title}</div>
-              {a.desc&&<div className="card-desc">{a.desc}</div>}
-              <button className="card-cta" onClick={()=>markDone(a.id)}>Mark as done <span>→</span></button>
-            </div>
-          ))}
-        </div>
-      ))}
-      {view === "list" && (actions.length === 0 ? (
-        <div className="empty-state"><div className="e-icon">🌿</div><p>All clear. Add a new action above.</p></div>
-      ) : (
-        <div className="list-view">
-          {actions.map((a,i) => (
-            <div key={a.id} className="list-item" style={{animationDelay:`${i*0.04}s`}}>
-              <div className="list-dot" style={{background:a.color}}/>
-              <div className="list-icon">{a.icon}</div>
-              <div className="list-content">
-                <div className="list-title">{a.title}</div>
-                {a.desc && <div className="list-meta">{a.desc}</div>}
-              </div>
-              <button className="list-done-btn" onClick={()=>markDone(a.id)}>Done ✓</button>
-            </div>
-          ))}
-        </div>
-      ))}
-      {done.length > 0 && (
-        <div className="evidence-section">
-          <div className="evidence-header" onClick={()=>setShowEvidence(s=>!s)}>
-            <span className="evidence-title-text">My Evidence Wall</span>
-            <span className="evidence-count">{done.length} {done.length===1?"action":"actions"} completed</span>
-            <span className={`evidence-arrow${showEvidence?" open":""}`}>▼</span>
-          </div>
-          {showEvidence && (
-            <div className="journal">
-              {Object.entries(monthGroups).map(([month, items]) => (
-                <div key={month} className="journal-month">
-                  <div className="journal-month-label">{month}</div>
-                  <div className="journal-entries">
-                    {items.map((a,i) => {
-                      const cat = CATS.find(c=>c.id===a.cat);
-                      return (
-                        <div key={a.id} className="journal-entry" style={{animationDelay:`${i*0.04}s`}}>
-                          <div className="journal-dot">✓</div>
-                          <div className="journal-body">
-                            <button className="journal-restore" onClick={()=>restore(a.id)}>↩ restore</button>
-                            <div className="journal-body-title">{a.title}</div>
-                            <div className="journal-body-meta">
-                              <span className="journal-body-cat">{a.icon} {cat?.label||a.cat}</span>
-                              <span>{new Date(a.doneAt).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+        <div className="sidebar-section-label">Projects</div>
+        <div className="project-list">
+          {projects.map(proj => (
+            <div key={proj.id} className={`project-item${activeId===proj.id?" active":""}`}
+              onClick={()=>{ selectProject(proj.id); setSidebarOpen(false); }}>
+              <div className="project-dot">{proj.emoji}</div>
+              <div className="project-info">
+                <div className="project-name">{proj.name}</div>
+                <div className="project-count">
+                  {(() => { const d = loadProject(proj.id); const a = d?.actions ?? (proj.id==="spa_launch"&&!d ? SPA_LAUNCH_ACTIONS : []); return `${a.length} action${a.length!==1?"s":""}`; })()}
                 </div>
+              </div>
+              <button className="project-delete" onClick={(e)=>deleteProject(proj.id,e)}>✕</button>
+            </div>
+          ))}
+        </div>
+        {showNewProj ? (
+          <div className="new-project-form">
+            <div className="emoji-row">
+              {EMOJIS.map(e=>(
+                <button key={e} className={`emoji-opt${newProjEmoji===e?" selected":""}`} onClick={()=>setNewProjEmoji(e)}>{e}</button>
               ))}
             </div>
-          )}
-        </div>
-      )}
-      <div className="footer">
-        <em>Your Sparkle is the key that opens doors</em>
-        Words That Deliver · The Personal Brand Strategy Studio · © Carole Pyke
+            <input value={newProjName} onChange={e=>setNewProjName(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&createProject()} placeholder="Project name…" autoFocus/>
+            <div className="new-project-form-btns">
+              <button className="btn-create" onClick={createProject}>Create</button>
+              <button className="btn-cancel" onClick={()=>{setShowNewProj(false);setNewProjName("");}}>Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <button className="new-project-btn" onClick={()=>setShowNewProj(true)}>+ New project</button>
+        )}
+        <div className="sidebar-footer">Your Sparkle is the key that opens doors</div>
       </div>
-    </div>
-  );
-}
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-</script>
-</body>
-</html>
+      <div className="main">
+        {!activeProject ? (
+          <div className="no-project">
+            <div className="no-project-inner">
+              <div className="no-project-icon">🌿</div>
+              <h2>Select or create a project</h2>
+              <p>Choose a project from the sidebar or create a new one to get started.</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="main-header">
+              <div className="main-eyebrow">Words That Deliver · Action Dashboard</div>
+              <div className="main-title">{activeProject.emoji} {activeProject.name}</div>
+              <div className="main-sub">{actions.length} remaining · {done.length} completed</div>
+              <div className="today-pill"><strong>Today — </strong>{PROMPTS[new Date().getDay() % PROMPTS.length]}</div>
+            </div>
+            <div className="add-bar">
+              <input value={newTitle} onChange={e=>setNewTitle(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&addAction()} placeholder="Add a new action…"/>
+              <select value={newCat} onChange={e=>setNewCat(e.target.value)}>
+                {CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+              </select>
+              <button onClick={addAction}>Add</button>
+            </div>
+            <div className="toolbar">
+              <span className="count-badge">{actions.length} {actions.length===1?"action":"actions"} remaining</span>
+              <div className="view-toggle">
+                <button className={`view-btn${view==="visual"?" active":""}`} onClick={()=>setView("visual")}>▦ Visual</button>
+                <button className={`view-btn${view==="list"?" active":""}`} onClick={()=>setView("list")}>☰ List</button>
+              </div>
+            </div>
+            {view==="visual" && (actions.length===0 ? (
+              <div className="empty-state"><div className="e-icon">🌿</div><p>Canvas is clear — add an action above.</p></div>
+            ) : (
+              <div className="cards-canvas">
+                {actions.map((a,i)=>(
+                  <div key={a.id} className="action-card" style={{"--accent":a.color,animationDelay:`${i*0.05}s`}}>
+                    <button className="card-done-btn" onClick={()=>markDone(a.id)}>✓</button>
+                    <span className="card-icon">{a.icon}</span>
+                    <div className="card-cat-label">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
+                    <div className="card-title">{a.title}</div>
+                    <button className="card-cta" onClick={()=>markDone(a.id)}>Mark as done <span>→</span></button>
+                  </div>
+                ))}
+              </div>
+            ))}
+            {view==="list" && (actions.length===0 ? (
+              <div className="empty-state"><div className="e-icon">🌿</div><p>All clear — add an action above.</p></div>
+            ) : (
+              <div className="list-view">
+                {actions.map((a,i)=>(
+                  <div key={a.id} className="list-item" style={{animationDelay:`${i*0.035}s`}}>
+                    <div className="list-dot" style={{background:a.color}}/>
+                    <div className="list-icon">{a.icon}</div>
+                    <div className="list-content">
+                      <div className="list-title">{a.title}</div>
+                      <div className="list-meta">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
+                    </div>
+                    <button className="list-done-btn" onClick={()=>markDone(a.id)}>Done ✓</button>
+                  </div>
+                ))}
+              </div>
+            ))}
+            {done.length>0 && (
+              <div className="evidence-section">
+                <div className="evidence-header" onClick={()=>setShowEvidence(s=>!s)}>
+                  <span className="evidence-title">My Evidence Wall</span>
+                  <span className="evidence-count">{done.length} completed</span>
+                  <span className={`evidence-arrow${showEvidence?" open":""}`}>▼</span>
+                </div>
+                {showEvidence && (
+                  <div className="journal">
+                    {Object.entries(monthGroups).map(([month,items])=>(
+                      <div key={month} className="journal-month">
+                        <div cla
