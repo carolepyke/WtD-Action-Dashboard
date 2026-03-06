@@ -206,4 +206,80 @@ function App() {
       {view === "visual" && (actions.length === 0 ? (
         <div className="empty-state"><div className="e-icon">🌿</div><p>Your canvas is clear. Add a new action above.</p></div>
       ) : (
-        <div className=
+        <div className="cards-canvas">
+          {actions.map((a,i) => (
+            <div key={a.id} className="action-card" style={{"--accent":a.color, animationDelay:`${i*0.055}s`}}>
+              <button className="card-done-btn" title="Mark as done" onClick={()=>markDone(a.id)}>✓</button>
+              <span className="card-icon">{a.icon}</span>
+              <div className="card-cat-label">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
+              <div className="card-title">{a.title}</div>
+              {a.desc&&<div className="card-desc">{a.desc}</div>}
+              <button className="card-cta" onClick={()=>markDone(a.id)}>Mark as done <span>→</span></button>
+            </div>
+          ))}
+        </div>
+      ))}
+      {view === "list" && (actions.length === 0 ? (
+        <div className="empty-state"><div className="e-icon">🌿</div><p>All clear. Add a new action above.</p></div>
+      ) : (
+        <div className="list-view">
+          {actions.map((a,i) => (
+            <div key={a.id} className="list-item" style={{animationDelay:`${i*0.04}s`}}>
+              <div className="list-dot" style={{background:a.color}}/>
+              <div className="list-icon">{a.icon}</div>
+              <div className="list-content">
+                <div className="list-title">{a.title}</div>
+                {a.desc && <div className="list-meta">{a.desc}</div>}
+              </div>
+              <button className="list-done-btn" onClick={()=>markDone(a.id)}>Done ✓</button>
+            </div>
+          ))}
+        </div>
+      ))}
+      {done.length > 0 && (
+        <div className="evidence-section">
+          <div className="evidence-header" onClick={()=>setShowEvidence(s=>!s)}>
+            <span className="evidence-title-text">My Evidence Wall</span>
+            <span className="evidence-count">{done.length} {done.length===1?"action":"actions"} completed</span>
+            <span className={`evidence-arrow${showEvidence?" open":""}`}>▼</span>
+          </div>
+          {showEvidence && (
+            <div className="journal">
+              {Object.entries(monthGroups).map(([month, items]) => (
+                <div key={month} className="journal-month">
+                  <div className="journal-month-label">{month}</div>
+                  <div className="journal-entries">
+                    {items.map((a,i) => {
+                      const cat = CATS.find(c=>c.id===a.cat);
+                      return (
+                        <div key={a.id} className="journal-entry" style={{animationDelay:`${i*0.04}s`}}>
+                          <div className="journal-dot">✓</div>
+                          <div className="journal-body">
+                            <button className="journal-restore" onClick={()=>restore(a.id)}>↩ restore</button>
+                            <div className="journal-body-title">{a.title}</div>
+                            <div className="journal-body-meta">
+                              <span className="journal-body-cat">{a.icon} {cat?.label||a.cat}</span>
+                              <span>{new Date(a.doneAt).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <div className="footer">
+        <em>Your Sparkle is the key that opens doors</em>
+        Words That Deliver · The Personal Brand Strategy Studio · © Carole Pyke
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
