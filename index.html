@@ -483,4 +483,42 @@ function App() {
                   <div className="journal">
                     {Object.entries(monthGroups).map(([month,items])=>(
                       <div key={month} className="journal-month">
-                        <div cla
+                        <div className="journal-month-label">{month}</div>
+                        <div className="journal-entries">
+                          {items.map((a,i)=>{
+                            const cat=CATS.find(c=>c.id===a.cat);
+                            return (
+                              <div key={a.id} className="journal-entry" style={{animationDelay:`${i*0.035}s`}}>
+                                <div className="journal-dot">✓</div>
+                                <div className="journal-body">
+                                  <button className="journal-restore" onClick={()=>restore(a.id)}>↩ restore</button>
+                                  <div className="journal-body-title">{a.title}</div>
+                                  <div className="journal-body-meta">
+                                    <span className="journal-body-cat">{a.icon} {cat?.label||a.cat}</span>
+                                    <span>{new Date(a.doneAt).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="footer">
+              <em>Your Sparkle is the key that opens doors</em>
+              Words That Deliver · The Personal Brand Strategy Studio · © Carole Pyke
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
