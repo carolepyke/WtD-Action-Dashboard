@@ -583,6 +583,46 @@
 
     /* Stars */
     .star { position: fixed; pointer-events: none; z-index: 0; opacity: 0.09; }
+    /* ── Print button ── */
+    .print-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
+      background: white; color: var(--muted); font-size: 14px;
+      font-family: 'Jost', sans-serif; cursor: pointer; transition: all 0.15s;
+    }
+    .print-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── Print styles ── */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: white !important; }
+      .sidebar, .sidebar-toggle, .sidebar-overlay, .toolbar,
+      .add-bar, .card-done-btn, .card-cta, .card-notes-btn,
+      .list-done-btn, .list-notes-btn, .evidence-section,
+      .footer, .star, .lightbox, .ctx-menu, .modal-overlay,
+      .print-btn { display: none !important; }
+      .main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+      .print-sheet { display: block !important; }
+      .no-print { display: none !important; }
+    }
+    .print-sheet { display: none; }
+
+    /* Print sheet layout */
+    .ps-header { border-bottom: 2px solid #A07820; padding-bottom: 16px; margin-bottom: 28px; }
+    .ps-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; color: #2C1F0E; }
+    .ps-meta { font-size: 13px; color: #888; font-family: 'Jost', sans-serif; margin-top: 4px; }
+    .ps-project { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #A07820; margin-bottom: 20px; font-style: italic; }
+    .ps-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #eee; page-break-inside: avoid; }
+    .ps-checkbox { width: 18px; height: 18px; border: 1.5px solid #A07820; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+    .ps-content { flex: 1; }
+    .ps-cat { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #A07820; font-family: 'Jost', sans-serif; margin-bottom: 3px; }
+    .ps-item-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: #2C1F0E; margin-bottom: 6px; }
+    .ps-notes { font-size: 13px; color: #666; font-family: 'Jost', sans-serif; line-height: 1.6; margin-bottom: 6px; white-space: pre-wrap; }
+    .ps-dates { display: flex; gap: 16px; font-size: 12px; font-family: 'Jost', sans-serif; }
+    .ps-date-planned { color: #4A7B9D; }
+    .ps-date-due { color: #C0392B; }
+    .ps-section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #888; font-family: 'Jost', sans-serif; margin: 24px 0 8px; }
+
   </style>
 </head>
 <body>
@@ -755,6 +795,7 @@ function App() {
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [calView, setCalView]         = useState("month"); // "month" | "week"
   const [calDate, setCalDate]         = useState(new Date());
+  const [showPrintMenu, setShowPrintMenu] = useState(false);
   const [newTitle, setNewTitle]     = useState("");
   const [newCat, setNewCat]         = useState("sparkle");
   const [showNewProj, setShowNewProj] = useState(false);
@@ -818,6 +859,14 @@ function App() {
     window.addEventListener('click', close);
     return () => window.removeEventListener('click', close);
   }, [ctxMenu]);
+
+  // Close print menu on outside click
+  useEffect(() => {
+    if (!showPrintMenu) return;
+    const close = () => setShowPrintMenu(false);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [showPrintMenu]);
 
   // Save to Gist (debounced so it doesn't fire on every keystroke)
   function syncToGist(projs, projId, projActions, projDone) {
@@ -950,6 +999,83 @@ function App() {
   function isDateSoon(dateStr) {
     const diff = (new Date(dateStr) - new Date()) / 86400000;
     return diff >= 0 && diff <= 3;
+  }
+
+  function printProject() {
+    const proj = projects.find(p => p.id === activeId);
+    if (!proj) return;
+    const todayStr = new Date().toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"});
+    const html = buildPrintHTML(proj.emoji + " " + proj.name, actions, todayStr, false);
+    openPrint(html);
+  }
+
+  function printToday() {
+    const todayStr = toDateStr(new Date());
+    const todayItems = actions.filter(a => a.plannedDate === todayStr || a.dueDate === todayStr);
+    const proj = projects.find(p => p.id === activeId);
+    const label = (proj ? proj.emoji + " " + proj.name + " — " : "") + "Today's List";
+    const dateStr = new Date().toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"});
+    const html = buildPrintHTML(label, todayItems, dateStr, true);
+    openPrint(html);
+  }
+
+  function buildPrintHTML(title, items, dateStr, todayOnly) {
+    const catMap = {};
+    CATS.forEach(c => catMap[c.id] = c.label);
+    const rows = items.map(a => `
+      <div class="ps-item">
+        <div class="ps-checkbox"></div>
+        <div class="ps-content">
+          <div class="ps-cat">${a.icon || ""} ${catMap[a.cat] || a.cat}</div>
+          <div class="ps-item-title">${a.title}</div>
+          ${a.notes ? `<div class="ps-notes">${a.notes}</div>` : ""}
+          ${(a.plannedDate || a.dueDate) ? `<div class="ps-dates">
+            ${a.plannedDate ? `<span class="ps-date-planned">📅 Planned: ${new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}</span>` : ""}
+            ${a.dueDate ? `<span class="ps-date-due">⏰ Due: ${new Date(a.dueDate).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}</span>` : ""}
+          </div>` : ""}
+        </div>
+      </div>`).join("");
+
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+      <style>
+        body { font-family: 'Jost', sans-serif; color: #2C1F0E; background: white; padding: 40px 48px; max-width: 800px; margin: 0 auto; }
+        .ps-header { border-bottom: 2px solid #A07820; padding-bottom: 16px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .ps-brand { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #A07820; margin-bottom: 6px; }
+        .ps-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; color: #2C1F0E; }
+        .ps-date { font-size: 13px; color: #888; text-align: right; }
+        .ps-count { font-size: 13px; color: #888; margin-bottom: 20px; }
+        .ps-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #eee; page-break-inside: avoid; }
+        .ps-checkbox { width: 18px; height: 18px; border: 1.5px solid #A07820; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+        .ps-content { flex: 1; }
+        .ps-cat { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #A07820; margin-bottom: 3px; }
+        .ps-item-title { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: #2C1F0E; margin-bottom: 5px; }
+        .ps-notes { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 5px; white-space: pre-wrap; }
+        .ps-dates { display: flex; gap: 16px; font-size: 12px; }
+        .ps-date-planned { color: #4A7B9D; }
+        .ps-date-due { color: #C0392B; }
+        .ps-footer { margin-top: 40px; text-align: center; font-family: 'Cormorant Garamond', serif; font-size: 15px; font-style: italic; color: #A07820; }
+        @media print { body { padding: 20px; } }
+      </style></head><body>
+      <div class="ps-header">
+        <div>
+          <div class="ps-brand">Words That Deliver · Action Dashboard</div>
+          <div class="ps-title">${title}</div>
+        </div>
+        <div class="ps-date">${dateStr}</div>
+      </div>
+      <div class="ps-count">${items.length} action${items.length!==1?"s":""} ${todayOnly?"scheduled for today":"remaining"}</div>
+      ${items.length === 0 ? '<p style="color:#888;font-style:italic;font-family:\'Cormorant Garamond\',serif;font-size:18px;">Nothing scheduled for today — enjoy the space! ✨</p>' : rows}
+      <div class="ps-footer">Your Sparkle is the key that opens doors</div>
+      <script>window.onload=()=>{ window.print(); }<\/script>
+    </body></html>`;
+  }
+
+  function openPrint(html) {
+    const w = window.open("", "_blank");
+    w.document.write(html);
+    w.document.close();
+    setShowPrintMenu(false);
   }
   function toggleNote(id) {
     setExpandedNotes(p => ({...p, [id]: !p[id]}));
@@ -1147,8 +1273,17 @@ function App() {
 
             {/* Toolbar */}
             <div className="toolbar">
-              <div className="toolbar-left">
+              <div className="toolbar-left" style={{display:"flex",alignItems:"center",gap:10}}>
                 <span className="count-badge">{actions.length} {actions.length===1?"action":"actions"} remaining</span>
+                <div style={{position:"relative"}}>
+                  <button className="print-btn" onClick={()=>setShowPrintMenu(p=>!p)}>🖨️ Print</button>
+                  {showPrintMenu && (
+                    <div className="ctx-menu" style={{top:"110%",left:0,minWidth:200}} onClick={e=>e.stopPropagation()}>
+                      <div className="ctx-item" onClick={printProject}>📋 Full project list</div>
+                      <div className="ctx-item" onClick={printToday}>📅 Today's items only</div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="view-toggle">
                 <button className={`view-btn${view==="visual"?" active":""}`} onClick={()=>setView("visual")}>▦ Visual</button>
