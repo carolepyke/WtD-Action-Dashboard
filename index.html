@@ -182,6 +182,29 @@
     .main-eyebrow { font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); opacity: 0.7; margin-bottom: 8px; }
     .main-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(34px, 5vw, 52px); font-weight: 300; color: var(--dark); line-height: 1.15; margin-bottom: 6px; }
     .main-sub { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--gold); margin-bottom: 20px; }
+
+    /* ── Project Goal ── */
+    .project-goal-wrap {
+      background: rgba(160,120,32,0.06); border: 1px solid rgba(160,120,32,0.2);
+      border-radius: 14px; padding: 18px 22px; margin-bottom: 24px;
+      position: relative; transition: border-color 0.2s;
+    }
+    .project-goal-wrap:hover { border-color: rgba(160,120,32,0.4); }
+    .goal-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); font-family: 'Jost', sans-serif; margin-bottom: 8px; opacity: 0.8; }
+    .goal-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--dark); line-height: 1.5; font-style: italic; }
+    .goal-empty { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--muted); font-style: italic; cursor: pointer; }
+    .goal-input {
+      width: 100%; border: none; background: transparent; outline: none;
+      font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--dark);
+      line-height: 1.5; font-style: italic; resize: none; min-height: 60px;
+    }
+    .goal-edit-btn {
+      position: absolute; top: 14px; right: 14px; background: none; border: none;
+      font-size: 14px; color: var(--muted); cursor: pointer; opacity: 0;
+      transition: opacity 0.15s; font-family: 'Jost', sans-serif;
+    }
+    .project-goal-wrap:hover .goal-edit-btn { opacity: 1; }
+    .goal-edit-btn:hover { color: var(--gold); }
     .today-pill {
       display: inline-block; background: white; border: 1px solid var(--border);
       border-radius: 100px; padding: 12px 28px; font-size: 17px; color: var(--muted);
@@ -796,6 +819,7 @@ function App() {
   const [calView, setCalView]         = useState("month"); // "month" | "week"
   const [calDate, setCalDate]         = useState(new Date());
   const [showPrintMenu, setShowPrintMenu] = useState(false);
+  const [editingGoal, setEditingGoal]   = useState(false);
   const [newTitle, setNewTitle]     = useState("");
   const [newCat, setNewCat]         = useState("sparkle");
   const [showNewProj, setShowNewProj] = useState(false);
@@ -973,6 +997,12 @@ function App() {
   function updateNote(id, text) {
     setActions(p => p.map(a => a.id===id ? {...a, notes: text} : a));
   }
+  function updateGoal(text) {
+    const updated = projects.map(p => p.id===activeId ? {...p, goal: text} : p);
+    setProjects(updated);
+    saveProjects(updated);
+    syncToGist(updated, activeId, actions, done);
+  }
   function updateDate(id, field, val) {
     setActions(p => p.map(a => a.id===id ? {...a, [field]: val} : a));
   }
@@ -1005,7 +1035,7 @@ function App() {
     const proj = projects.find(p => p.id === activeId);
     if (!proj) return;
     const todayStr = new Date().toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"});
-    const html = buildPrintHTML(proj.emoji + " " + proj.name, actions, todayStr, false);
+    const html = buildPrintHTML(proj.emoji + " " + proj.name, proj.goal||"", actions, todayStr, false);
     openPrint(html);
   }
 
@@ -1015,11 +1045,11 @@ function App() {
     const proj = projects.find(p => p.id === activeId);
     const label = (proj ? proj.emoji + " " + proj.name + " — " : "") + "Today's List";
     const dateStr = new Date().toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"});
-    const html = buildPrintHTML(label, todayItems, dateStr, true);
+    const html = buildPrintHTML(label, proj?.goal||"", todayItems, dateStr, true);
     openPrint(html);
   }
 
-  function buildPrintHTML(title, items, dateStr, todayOnly) {
+  function buildPrintHTML(title, goal, items, dateStr, todayOnly) {
     const catMap = {};
     CATS.forEach(c => catMap[c.id] = c.label);
     const rows = items.map(a => `
@@ -1065,6 +1095,7 @@ function App() {
         <div class="ps-date">${dateStr}</div>
       </div>
       <div class="ps-count">${items.length} action${items.length!==1?"s":""} ${todayOnly?"scheduled for today":"remaining"}</div>
+      ${goal ? `<div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:#A07820;border-left:3px solid #A07820;padding:10px 16px;margin-bottom:24px;background:rgba(160,120,32,0.05);border-radius:0 8px 8px 0;">🎯 ${goal}</div>` : ""}
       ${items.length === 0 ? '<p style="color:#888;font-style:italic;font-family:\'Cormorant Garamond\',serif;font-size:18px;">Nothing scheduled for today — enjoy the space! ✨</p>' : rows}
       <div class="ps-footer">Your Sparkle is the key that opens doors</div>
     </body></html>`;
@@ -1244,6 +1275,7 @@ function App() {
                       onClick={()=>selectProject(proj.id)}>
                       <span className="home-card-emoji">{proj.emoji}</span>
                       <div className="home-card-name">{proj.name}</div>
+                      {proj.goal && <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,fontStyle:"italic",color:"var(--gold)",marginBottom:8,lineHeight:1.4}}>{proj.goal}</div>}
                       <div className="home-card-meta">{remaining} remaining · {completed} done</div>
                       <div className="home-card-open">Open project <span>→</span></div>
                     </div>
@@ -1268,6 +1300,24 @@ function App() {
               <div className="today-pill">
                 <strong>Today — </strong>{PROMPTS[new Date().getDay() % PROMPTS.length]}
               </div>
+            </div>
+
+            {/* ── PROJECT GOAL ── */}
+            <div className="project-goal-wrap">
+              <div className="goal-eyebrow">🎯 Project Goal</div>
+              {editingGoal ? (
+                <textarea className="goal-input"
+                  autoFocus
+                  value={activeProject.goal||""}
+                  onChange={e=>updateGoal(e.target.value)}
+                  onBlur={()=>setEditingGoal(false)}
+                  placeholder="What does success look like for this project?"/>
+              ) : (
+                activeProject.goal
+                  ? <div className="goal-text" onClick={()=>setEditingGoal(true)}>{activeProject.goal}</div>
+                  : <div className="goal-empty" onClick={()=>setEditingGoal(true)}>What does success look like for this project? Click to add your goal…</div>
+              )}
+              {!editingGoal && <button className="goal-edit-btn" onClick={()=>setEditingGoal(true)}>✏️ edit</button>}
             </div>
 
             {/* Add bar */}
