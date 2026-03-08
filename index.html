@@ -421,7 +421,52 @@
     /* ── Drag styles ── */
     .project-item.dragging { opacity: 0.4; }
     .project-item.drag-over { border-top: 2px solid var(--gold); }
-    /* ── Date fields ── */
+    /* ── Sections ── */
+    .section-block { margin-bottom: 32px; }
+    .section-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; margin-bottom: 12px;
+      border-bottom: 2px solid var(--border); cursor: pointer;
+    }
+    .section-toggle { font-size: 11px; color: var(--muted); width: 16px; transition: transform 0.2s; }
+    .section-toggle.open { transform: rotate(90deg); }
+    .section-title-text {
+      font-family: 'Jost', sans-serif; font-size: 16px; font-weight: 600;
+      color: var(--dark); letter-spacing: 0.5px; flex: 1;
+    }
+    .section-title-input {
+      font-family: 'Jost', sans-serif; font-size: 16px; font-weight: 600;
+      color: var(--dark); border: none; border-bottom: 2px solid var(--gold);
+      background: transparent; outline: none; flex: 1; padding: 2px 0;
+    }
+    .section-count { font-size: 13px; color: var(--muted); }
+    .section-actions-row { display: flex; gap: 8px; margin-left: auto; }
+    .section-btn {
+      font-size: 12px; color: var(--muted); background: none; border: none;
+      cursor: pointer; padding: 3px 8px; border-radius: 6px;
+      font-family: 'Jost', sans-serif; transition: all 0.15s;
+    }
+    .section-btn:hover { background: rgba(160,120,32,0.08); color: var(--gold); }
+    .section-btn.danger:hover { background: rgba(192,57,43,0.08); color: #C0392B; }
+    .add-section-btn {
+      display: flex; align-items: center; gap: 8px; padding: 12px 18px;
+      border: 1.5px dashed var(--border); border-radius: 10px;
+      background: none; cursor: pointer; font-size: 15px; color: var(--muted);
+      font-family: 'Jost', sans-serif; width: 100%; margin-top: 8px;
+      transition: all 0.15s;
+    }
+    .add-section-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(160,120,32,0.03); }
+    .unsectioned-label {
+      font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); font-family: 'Jost', sans-serif;
+      padding: 8px 0; margin-bottom: 12px; border-bottom: 1px dashed var(--border);
+    }
+    /* Move to section dropdown on action */
+    .move-section-select {
+      font-size: 12px; border: 1px solid var(--border); border-radius: 6px;
+      padding: 3px 6px; background: white; color: var(--muted);
+      font-family: 'Jost', sans-serif; cursor: pointer; margin-top: 6px;
+    }
     .notes-dates { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
     .date-field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
     .date-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'Jost', sans-serif; }
@@ -432,6 +477,47 @@
     .date-badge.planned { background: rgba(74,123,157,0.12); color: #4A7B9D; }
     .date-badge.due { background: rgba(231,76,60,0.1); color: #C0392B; }
     .date-badge.due.soon { background: rgba(231,76,60,0.2); color: #C0392B; font-weight: 600; }
+
+    /* ── Bullet points ── */
+    .notes-bullets-wrap { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .notes-section-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'Jost', sans-serif; margin-bottom: 8px; }
+    .bullet-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .bullet-dot { color: var(--gold); font-size: 16px; flex-shrink: 0; line-height: 1; }
+    .bullet-input { flex: 1; border: none; border-bottom: 1px solid var(--border); background: transparent; font-size: 15px; font-family: 'Jost', sans-serif; color: var(--dark); outline: none; padding: 4px 0; transition: border-color 0.2s; }
+    .bullet-input:focus { border-bottom-color: var(--gold); }
+    .bullet-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; opacity: 0; transition: opacity 0.15s; padding: 0 4px; line-height: 1; }
+    .bullet-item:hover .bullet-del { opacity: 1; }
+    .bullet-add { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; font-family: 'Jost', sans-serif; padding: 4px 0; margin-top: 2px; transition: color 0.15s; }
+    .bullet-add:hover { color: var(--gold); }
+
+    /* ── Links ── */
+    .notes-links-wrap { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .link-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; background: rgba(74,123,157,0.06); border-radius: 8px; padding: 9px 12px; }
+    .link-emoji { font-size: 16px; flex-shrink: 0; }
+    .link-info { flex: 1; min-width: 0; }
+    .link-name { font-size: 14px; font-family: 'Jost', sans-serif; color: #4A7B9D; font-weight: 500; text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .link-name:hover { text-decoration: underline; }
+    .link-url-small { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .link-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .link-item:hover .link-del { opacity: 1; }
+    .add-link-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .add-link-input { flex: 1; min-width: 80px; border: 1px solid var(--border); border-radius: 7px; padding: 7px 10px; font-size: 13px; font-family: 'Jost', sans-serif; color: var(--dark); background: white; outline: none; transition: border-color 0.2s; }
+    .add-link-input:focus { border-color: var(--gold); }
+    .add-link-btn { padding: 7px 14px; border-radius: 7px; border: none; background: var(--gold); color: white; font-size: 13px; font-family: 'Jost', sans-serif; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .add-link-btn:hover { opacity: 0.85; }
+
+    /* ── Move up/down arrows ── */
+    .action-move-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+    .move-btn { background: none; border: 1px solid var(--border); border-radius: 4px; width: 22px; height: 22px; cursor: pointer; font-size: 10px; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
+    .move-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .card-move-btns { position: absolute; bottom: 10px; left: 10px; display: flex; flex-direction: row; gap: 3px; opacity: 0; transition: opacity 0.15s; }
+    .action-card:hover .card-move-btns { opacity: 1; }
+    .card-move-btn { background: none; border: 1px solid var(--border); border-radius: 4px; width: 24px; height: 24px; cursor: pointer; font-size: 11px; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .card-move-btn:hover { border-color: var(--gold); color: var(--gold); background: white; }
+
+    /* ── Print styles ── */
+    .print-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: white; color: var(--muted); font-size: 14px; font-family: 'Jost', sans-serif; cursor: pointer; transition: all 0.15s; }
+    .print-btn:hover { border-color: var(--gold); color: var(--gold); }
 
     /* ── Calendar view ── */
     .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
@@ -619,13 +705,10 @@
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       body { background: white !important; }
-      .sidebar, .sidebar-toggle, .sidebar-overlay, .toolbar,
-      .add-bar, .card-done-btn, .card-cta, .card-notes-btn,
-      .list-done-btn, .list-notes-btn, .evidence-section,
-      .footer, .star, .lightbox, .ctx-menu, .modal-overlay,
-      .print-btn { display: none !important; }
-      .main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
-      .print-sheet { display: block !important; }
+      .layout > .sidebar,
+      .sidebar-toggle, .sidebar-overlay,
+      .main { display: none !important; }
+      .print-sheet { display: block !important; padding: 32px 40px; max-width: 760px; margin: 0 auto; }
       .no-print { display: none !important; }
     }
     .print-sheet { display: none; }
@@ -675,6 +758,10 @@ const CATS = [
   { id:"launch",    label:"Launch",     icon:"🚀", color:"#E74C3C" },
   { id:"content",   label:"Content",    icon:"✍️", color:"#8E44AD" },
   { id:"admin",     label:"Admin",      icon:"📋", color:"#7F8C8D" },
+  { id:"read",      label:"Read",       icon:"📚", color:"#6B4C9A" },
+  { id:"learn",     label:"Learn",      icon:"🎓", color:"#1A7A4A" },
+  { id:"research",  label:"Research",   icon:"💡", color:"#D4820A" },
+  { id:"review",    label:"Review",     icon:"🔍", color:"#2C7873" },
 ];
 
 // ── SPA Launch preset ─────────────────────────────────────────────────
@@ -803,6 +890,84 @@ function ImageGallery({ actionId, images, onAdd, onRemove, onLightbox }) {
   );
 }
 
+// ── Notes Panel Component ─────────────────────────────────────────────
+function NotesPanel({ a, sections, onNote, onDate, onBullet, onBulletUpdate, onBulletDelete, onBulletKey,
+  linkDraft, onLinkField, onAddLink, onDeleteLink, onMoveSection, onAddImage, onRemoveImage, onLightbox }) {
+  return (
+    <div>
+      {/* Notes text */}
+      <textarea className="card-notes-input" value={a.notes||""} onChange={e=>onNote(a.id,e.target.value)}
+        placeholder="Add details, instructions for your VA…"/>
+
+      {/* Dates — from/to + due */}
+      <div className="notes-dates">
+        <div className="date-field">
+          <label className="date-label">📅 Planned from</label>
+          <input type="date" className="date-input" value={a.plannedDate||""} onChange={e=>onDate(a.id,"plannedDate",e.target.value)}/>
+        </div>
+        <div className="date-field">
+          <label className="date-label">📅 Planned to</label>
+          <input type="date" className="date-input" value={a.plannedDateTo||""} onChange={e=>onDate(a.id,"plannedDateTo",e.target.value)}/>
+        </div>
+        <div className="date-field">
+          <label className="date-label">⏰ Due date</label>
+          <input type="date" className="date-input" value={a.dueDate||""} onChange={e=>onDate(a.id,"dueDate",e.target.value)}/>
+        </div>
+      </div>
+
+      {/* Bullet points */}
+      <div className="notes-bullets-wrap">
+        <div className="notes-section-label">• Bullet Points</div>
+        {(a.bullets||[]).map((b,idx)=>(
+          <div key={b.id} className="bullet-item">
+            <span className="bullet-dot">•</span>
+            <input className="bullet-input" value={b.text} autoFocus={idx===(a.bullets.length-1)&&b.text===""}
+              onChange={e=>onBulletUpdate(a.id,b.id,e.target.value)}
+              onKeyDown={e=>onBulletKey(e,a.id,b.id,idx,a.bullets||[])}
+              placeholder="Type a point…"/>
+            <button className="bullet-del" onClick={()=>onBulletDelete(a.id,b.id)}>✕</button>
+          </div>
+        ))}
+        <button className="bullet-add" onClick={()=>onBullet(a.id)}>+ Add bullet</button>
+      </div>
+
+      {/* Links */}
+      <div className="notes-links-wrap">
+        <div className="notes-section-label">🔗 Links</div>
+        {(a.links||[]).map(l=>(
+          <div key={l.id} className="link-item">
+            <span className="link-emoji">🔗</span>
+            <div className="link-info">
+              <a className="link-name" href={l.url} target="_blank" rel="noopener noreferrer">{l.title}</a>
+              <span className="link-url-small">{l.url}</span>
+            </div>
+            <button className="link-del" onClick={()=>onDeleteLink(a.id,l.id)}>✕</button>
+          </div>
+        ))}
+        <div className="add-link-row">
+          <input className="add-link-input" placeholder="Link title" value={linkDraft.title||""}
+            onChange={e=>onLinkField(a.id,"title",e.target.value)}/>
+          <input className="add-link-input" placeholder="https://…" value={linkDraft.url||""}
+            onChange={e=>onLinkField(a.id,"url",e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&onAddLink(a.id)}/>
+          <button className="add-link-btn" onClick={()=>onAddLink(a.id)}>Add</button>
+        </div>
+      </div>
+
+      {/* Move to section */}
+      {sections.length>0 && (
+        <select className="move-section-select" value={a.sectionId||""} onChange={e=>onMoveSection(a.id,e.target.value||null)}>
+          <option value="">— No section —</option>
+          {sections.map(s=><option key={s.id} value={s.id}>{s.title}</option>)}
+        </select>
+      )}
+
+      {/* Images */}
+      <ImageGallery actionId={a.id} images={a.images} onAdd={onAddImage} onRemove={onRemoveImage} onLightbox={onLightbox}/>
+    </div>
+  );
+}
+
 // ── App ───────────────────────────────────────────────────────────────
 function App() {
   const [userName, setUserName]     = useState("");
@@ -820,6 +985,10 @@ function App() {
   const [calDate, setCalDate]         = useState(new Date());
   const [showPrintMenu, setShowPrintMenu] = useState(false);
   const [editingGoal, setEditingGoal]   = useState(false);
+  const [printContent, setPrintContent] = useState(null);
+  const [sections, setSections]         = useState([]); // [{id, title}]
+  const [collapsedSections, setCollapsedSections] = useState({});
+  const [editingSection, setEditingSection] = useState(null); // id being renamed
   const [newTitle, setNewTitle]     = useState("");
   const [newCat, setNewCat]         = useState("sparkle");
   const [showNewProj, setShowNewProj] = useState(false);
@@ -867,13 +1036,27 @@ function App() {
     setActiveId(id);
     const data = loadProject(id);
     if (proj.id === "spa_launch" && !data) {
-      setActions(SPA_LAUNCH_ACTIONS.map(a => ({...a})));
+      // Seed SPA with default sections matching existing categories
+      const seedSections = [
+        { id: "sec_build",   title: "🏗️ Build" },
+        { id: "sec_content", title: "✍️ Content" },
+        { id: "sec_launch",  title: "🚀 Launch" },
+      ];
+      const seededActions = SPA_LAUNCH_ACTIONS.map(a => ({
+        ...a,
+        sectionId: a.cat==="build" ? "sec_build" : a.cat==="content" ? "sec_content" : "sec_launch"
+      }));
+      setSections(seedSections);
+      setActions(seededActions);
       setDone([]);
     } else {
+      setSections(data?.sections || []);
       setActions(data?.actions || []);
       setDone(data?.done || []);
     }
+    setCollapsedSections({});
     setShowEvidence(false);
+    setEditingGoal(false);
   }
 
   // Close context menu on outside click
@@ -914,9 +1097,9 @@ function App() {
   // Save locally immediately, sync to Gist after delay
   useEffect(() => {
     if (!activeId) return;
-    saveProject(activeId, { actions, done });
+    saveProject(activeId, { actions, done, sections });
     syncToGist(null, activeId, actions, done);
-  }, [actions, done, activeId]);
+  }, [actions, done, sections, activeId]);
 
   function enter(n) { /* no longer used */ }
 
@@ -1003,8 +1186,75 @@ function App() {
     saveProjects(updated);
     syncToGist(updated, activeId, actions, done);
   }
+
+  // ── Section functions ──
+  function addSection() {
+    const id = "sec_" + Date.now();
+    setSections(p => [...p, { id, title: "New Section" }]);
+    setEditingSection(id);
+  }
+  function updateSectionTitle(id, title) {
+    setSections(p => p.map(s => s.id===id ? {...s, title} : s));
+  }
+  function deleteSection(id) {
+    // Move actions in this section to unsectioned
+    setActions(p => p.map(a => a.sectionId===id ? {...a, sectionId: null} : a));
+    setSections(p => p.filter(s => s.id!==id));
+  }
+  function toggleSection(id) {
+    setCollapsedSections(p => ({...p, [id]: !p[id]}));
+  }
+  function moveActionToSection(actionId, sectionId) {
+    setActions(p => p.map(a => a.id===actionId ? {...a, sectionId: sectionId||null} : a));
+  }
   function updateDate(id, field, val) {
     setActions(p => p.map(a => a.id===id ? {...a, [field]: val} : a));
+  }
+
+  // ── Bullets ──
+  function addBullet(actionId) {
+    setActions(p => p.map(a => a.id===actionId ? {...a, bullets:[...(a.bullets||[]),{id:Date.now(),text:""}]} : a));
+  }
+  function updateBullet(actionId, bulletId, text) {
+    setActions(p => p.map(a => a.id===actionId ? {...a, bullets:(a.bullets||[]).map(b=>b.id===bulletId?{...b,text}:b)} : a));
+  }
+  function deleteBullet(actionId, bulletId) {
+    setActions(p => p.map(a => a.id===actionId ? {...a, bullets:(a.bullets||[]).filter(b=>b.id!==bulletId)} : a));
+  }
+  function bulletKeyDown(e, actionId, bulletId, idx, bullets) {
+    if (e.key==="Enter") { e.preventDefault(); addBullet(actionId); }
+    if (e.key==="Backspace" && bullets[idx].text==="" && bullets.length>1) { e.preventDefault(); deleteBullet(actionId, bulletId); }
+  }
+
+  // ── Links ──
+  const [linkDraft, setLinkDraft] = useState({});
+  function getLinkDraft(id) { return linkDraft[id]||{title:"",url:""}; }
+  function setLinkField(id, field, val) { setLinkDraft(p=>({...p,[id]:{...(p[id]||{}),[field]:val}})); }
+  function addLink(actionId) {
+    const draft = getLinkDraft(actionId);
+    if (!draft.url.trim()) return;
+    const url = draft.url.startsWith("http") ? draft.url : "https://"+draft.url;
+    const link = {id:Date.now(), title:draft.title.trim()||url, url};
+    setActions(p=>p.map(a=>a.id===actionId?{...a,links:[...(a.links||[]),link]}:a));
+    setLinkDraft(p=>({...p,[actionId]:{title:"",url:""}}));
+  }
+  function deleteLink(actionId, linkId) {
+    setActions(p=>p.map(a=>a.id===actionId?{...a,links:(a.links||[]).filter(l=>l.id!==linkId)}:a));
+  }
+
+  // ── Move up/down within section ──
+  function moveAction(actionId, dir, sectionId) {
+    setActions(prev => {
+      const inSec = prev.filter(a => sectionId ? a.sectionId===sectionId : !a.sectionId);
+      const idx = inSec.findIndex(a => a.id===actionId);
+      const newIdx = idx + dir;
+      if (newIdx<0||newIdx>=inSec.length) return prev;
+      const reordered = [...inSec];
+      const [moved] = reordered.splice(idx,1);
+      reordered.splice(newIdx,0,moved);
+      let si=0;
+      return prev.map(a => (sectionId ? a.sectionId===sectionId : !a.sectionId) ? reordered[si++] : a);
+    });
   }
 
   // ── Calendar helpers ──
@@ -1049,74 +1299,31 @@ function App() {
     openPrint(html);
   }
 
-  function buildPrintHTML(title, goal, items, dateStr, todayOnly) {
-    const catMap = {};
-    CATS.forEach(c => catMap[c.id] = c.label);
-    const rows = items.map(a => `
-      <div class="ps-item">
-        <div class="ps-checkbox"></div>
-        <div class="ps-content">
-          <div class="ps-cat">${a.icon || ""} ${catMap[a.cat] || a.cat}</div>
-          <div class="ps-item-title">${a.title}</div>
-          ${a.notes ? `<div class="ps-notes">${a.notes}</div>` : ""}
-          ${(a.plannedDate || a.dueDate) ? `<div class="ps-dates">
-            ${a.plannedDate ? `<span class="ps-date-planned">📅 Planned: ${new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}</span>` : ""}
-            ${a.dueDate ? `<span class="ps-date-due">⏰ Due: ${new Date(a.dueDate).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}</span>` : ""}
-          </div>` : ""}
-        </div>
-      </div>`).join("");
-
-    return `<!DOCTYPE html><html><head><meta charset="utf-8">
-      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-      <style>
-        body { font-family: 'Jost', sans-serif; color: #2C1F0E; background: white; padding: 40px 48px; max-width: 800px; margin: 0 auto; }
-        .ps-header { border-bottom: 2px solid #A07820; padding-bottom: 16px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .ps-brand { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #A07820; margin-bottom: 6px; }
-        .ps-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; color: #2C1F0E; }
-        .ps-date { font-size: 13px; color: #888; text-align: right; }
-        .ps-count { font-size: 13px; color: #888; margin-bottom: 20px; }
-        .ps-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #eee; page-break-inside: avoid; }
-        .ps-checkbox { width: 18px; height: 18px; border: 1.5px solid #A07820; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
-        .ps-content { flex: 1; }
-        .ps-cat { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #A07820; margin-bottom: 3px; }
-        .ps-item-title { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: #2C1F0E; margin-bottom: 5px; }
-        .ps-notes { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 5px; white-space: pre-wrap; }
-        .ps-dates { display: flex; gap: 16px; font-size: 12px; }
-        .ps-date-planned { color: #4A7B9D; }
-        .ps-date-due { color: #C0392B; }
-        .ps-footer { margin-top: 40px; text-align: center; font-family: 'Cormorant Garamond', serif; font-size: 15px; font-style: italic; color: #A07820; }
-        @media print { body { padding: 20px; } }
-      </style></head><body>
-      <div class="ps-header">
-        <div>
-          <div class="ps-brand">Words That Deliver · Action Dashboard</div>
-          <div class="ps-title">${title}</div>
-        </div>
-        <div class="ps-date">${dateStr}</div>
-      </div>
-      <div class="ps-count">${items.length} action${items.length!==1?"s":""} ${todayOnly?"scheduled for today":"remaining"}</div>
-      ${goal ? `<div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:#A07820;border-left:3px solid #A07820;padding:10px 16px;margin-bottom:24px;background:rgba(160,120,32,0.05);border-radius:0 8px 8px 0;">🎯 ${goal}</div>` : ""}
-      ${items.length === 0 ? '<p style="color:#888;font-style:italic;font-family:\'Cormorant Garamond\',serif;font-size:18px;">Nothing scheduled for today — enjoy the space! ✨</p>' : rows}
-      <div class="ps-footer">Your Sparkle is the key that opens doors</div>
-    </body></html>`;
+  function buildPrintData(title, goal, items, dateStr, todayOnly) {
+    // Group by section
+    let grouped = [];
+    if (sections.length > 0) {
+      sections.forEach(s => {
+        const sItems = items.filter(a => a.sectionId === s.id);
+        if (sItems.length > 0) grouped.push({ label: s.title, items: sItems, isGold: true });
+      });
+      const unsectioned = items.filter(a => !a.sectionId);
+      if (unsectioned.length > 0) grouped.push({ label: "Other Actions", items: unsectioned, isGold: false });
+    } else {
+      grouped = [{ label: null, items, isGold: false }];
+    }
+    return { title, goal, dateStr, todayOnly, grouped, count: items.length };
   }
 
-  function openPrint(html) {
-    // Use hidden iframe — avoids popup blockers
-    let iframe = document.getElementById('wtd-print-frame');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.id = 'wtd-print-frame';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:800px;height:600px;border:none;';
-      document.body.appendChild(iframe);
-    }
-    const doc = iframe.contentWindow.document;
-    doc.open(); doc.write(html); doc.close();
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    }, 600);
+  function buildPrintHTML(title, goal, items, dateStr, todayOnly) {
+    return buildPrintData(title, goal, items, dateStr, todayOnly);
+  }
+
+  function openPrint(content) {
+    setPrintContent(content);
     setShowPrintMenu(false);
+    // Small delay so React renders the print sheet before we call print
+    setTimeout(() => { window.print(); }, 120);
   }
   function toggleNote(id) {
     setExpandedNotes(p => ({...p, [id]: !p[id]}));
@@ -1133,10 +1340,10 @@ function App() {
     setActions(p => p.map(a => a.id===actionId ? {...a, images: (a.images||[]).filter((_,i)=>i!==imgIdx)} : a));
   }
 
-  function addAction() {
+  function addAction(sectionId) {
     if (!newTitle.trim() || !activeId) return;
     const cat = CATS.find(c => c.id === newCat) || CATS[0];
-    setActions(p => [{ id: Date.now(), title: newTitle.trim(), icon: cat.icon, cat: newCat, color: cat.color }, ...p]);
+    setActions(p => [{ id: Date.now(), title: newTitle.trim(), icon: cat.icon, cat: newCat, color: cat.color, sectionId: sectionId||null }, ...p]);
     setNewTitle("");
   }
 
@@ -1320,15 +1527,15 @@ function App() {
               {!editingGoal && <button className="goal-edit-btn" onClick={()=>setEditingGoal(true)}>✏️ edit</button>}
             </div>
 
-            {/* Add bar */}
+            {/* Add bar — global, adds to unsectioned */}
             <div className="add-bar">
               <input value={newTitle} onChange={e=>setNewTitle(e.target.value)}
-                onKeyDown={e=>e.key==="Enter"&&addAction()}
+                onKeyDown={e=>e.key==="Enter"&&addAction(null)}
                 placeholder="Add a new action…"/>
               <select value={newCat} onChange={e=>setNewCat(e.target.value)}>
                 {CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
               </select>
-              <button onClick={addAction}>Add</button>
+              <button onClick={()=>addAction(null)}>Add</button>
             </div>
 
             {/* Toolbar */}
@@ -1352,101 +1559,139 @@ function App() {
               </div>
             </div>
 
-            {/* ── VISUAL ── */}
-            {view==="visual" && (
-              actions.length===0 ? (
-                <div className="empty-state"><div className="e-icon">🌿</div><p>Canvas is clear — add an action above.</p></div>
-              ) : (
-                <div className="cards-canvas">
-                  {actions.map((a,i)=>(
-                    <div key={a.id} className="action-card" style={{"--accent":a.color,animationDelay:`${i*0.05}s`}}>
-                      <button className="card-done-btn" onClick={()=>markDone(a.id)}>✓</button>
-                      <span className="card-icon">{a.icon}</span>
-                      <div className="card-cat-label">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
-                      <div className="card-title">{a.title}</div>
-                      <div className="card-footer">
-                        <button className="card-cta" onClick={()=>markDone(a.id)}>Mark as done <span>→</span></button>
-                        <button className="card-notes-btn" onClick={()=>toggleNote(a.id)}>
-                          {expandedNotes[a.id] ? "▲ hide" : (a.notes||(a.plannedDate||a.dueDate) ? "📝 details" : "+ details")}
-                        </button>
-                      </div>
-                      {(a.plannedDate||a.dueDate) && !expandedNotes[a.id] && (
-                        <div className="card-date-badge">
-                          {a.plannedDate && <span className="date-badge planned">📅 {new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>}
-                          {a.dueDate && <span className={`date-badge due${isDateSoon(a.dueDate)?" soon":""}`}>⏰ {new Date(a.dueDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>}
-                        </div>
+            {/* ── VISUAL & LIST views — section-aware ── */}
+            {(view==="visual"||view==="list") && (() => {
+              const notesProps = (a) => ({
+                a, sections,
+                onNote: updateNote, onDate: updateDate,
+                onBullet: addBullet, onBulletUpdate: updateBullet,
+                onBulletDelete: deleteBullet, onBulletKey: bulletKeyDown,
+                linkDraft: getLinkDraft(a.id),
+                onLinkField: setLinkField, onAddLink: addLink, onDeleteLink: deleteLink,
+                onMoveSection: moveActionToSection,
+                onAddImage: addImage, onRemoveImage: removeImage, onLightbox: setLightboxSrc
+              });
+
+              const renderCard = (a, i, sectionId) => (
+                <div key={a.id} className="action-card" style={{"--accent":a.color,animationDelay:`${i*0.05}s`}}>
+                  <button className="card-done-btn" onClick={()=>markDone(a.id)}>✓</button>
+                  <span className="card-icon">{a.icon}</span>
+                  <div className="card-cat-label">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
+                  <div className="card-title">{a.title}</div>
+                  <div className="card-footer">
+                    <button className="card-cta" onClick={()=>markDone(a.id)}>Mark as done <span>→</span></button>
+                    <button className="card-notes-btn" onClick={()=>toggleNote(a.id)}>
+                      {expandedNotes[a.id] ? "▲ hide" : ((a.notes||a.bullets?.length||a.links?.length||a.plannedDate||a.dueDate) ? "📝 details" : "+ details")}
+                    </button>
+                  </div>
+                  {(a.plannedDate||a.dueDate) && !expandedNotes[a.id] && (
+                    <div className="card-date-badge">
+                      {a.plannedDate && <span className="date-badge planned">📅 {new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}{a.plannedDateTo ? " → "+new Date(a.plannedDateTo).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : ""}</span>}
+                      {a.dueDate && <span className={`date-badge due${isDateSoon(a.dueDate)?" soon":""}`}>⏰ {new Date(a.dueDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>}
+                    </div>
+                  )}
+                  {expandedNotes[a.id] && (
+                    <div className="card-notes-area">
+                      <NotesPanel {...notesProps(a)}/>
+                    </div>
+                  )}
+                  <div className="card-move-btns">
+                    <button className="card-move-btn" onClick={()=>moveAction(a.id,-1,sectionId)} title="Move up">↑</button>
+                    <button className="card-move-btn" onClick={()=>moveAction(a.id,1,sectionId)} title="Move down">↓</button>
+                  </div>
+                </div>
+              );
+
+              const renderListItem = (a, i, sectionId) => (
+                <React.Fragment key={a.id}>
+                  <div className="list-item" style={{animationDelay:`${i*0.035}s`}}>
+                    <div className="action-move-btns">
+                      <button className="move-btn" onClick={()=>moveAction(a.id,-1,sectionId)}>↑</button>
+                      <button className="move-btn" onClick={()=>moveAction(a.id,1,sectionId)}>↓</button>
+                    </div>
+                    <div className="list-dot" style={{background:a.color}}/>
+                    <div className="list-icon">{a.icon}</div>
+                    <div className="list-content">
+                      <div className="list-title">{a.title}</div>
+                      <div className="list-meta">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
+                    </div>
+                    <button className="list-notes-btn" onClick={()=>toggleNote(a.id)}>
+                      {expandedNotes[a.id] ? "▲" : ((a.notes||a.bullets?.length||a.links?.length) ? "📝 details" : "+ details")}
+                    </button>
+                    <button className="list-done-btn" onClick={()=>markDone(a.id)}>Done ✓</button>
+                  </div>
+                  {expandedNotes[a.id] && (
+                    <div className="list-notes-area">
+                      <NotesPanel {...notesProps(a)}/>
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+
+              const renderSection = (sectionId, sectionTitle, isUnsectioned) => {
+                const sectionActions = actions.filter(a => isUnsectioned ? !a.sectionId : a.sectionId===sectionId);
+                if (sectionActions.length===0 && isUnsectioned) return null;
+                const collapsed = collapsedSections[sectionId];
+                return (
+                  <div key={sectionId||"unsectioned"} className="section-block">
+                    {/* Section header */}
+                    <div className="section-header" onClick={()=>toggleSection(sectionId||"unsectioned")}>
+                      <span className={`section-toggle${!collapsed?" open":""}`}>▶</span>
+                      {editingSection===sectionId ? (
+                        <input className="section-title-input" autoFocus
+                          value={sectionTitle}
+                          onChange={e=>updateSectionTitle(sectionId,e.target.value)}
+                          onBlur={()=>setEditingSection(null)}
+                          onKeyDown={e=>{if(e.key==="Enter")setEditingSection(null);}}
+                          onClick={e=>e.stopPropagation()}/>
+                      ) : (
+                        <span className="section-title-text">{sectionTitle}</span>
                       )}
-                      {expandedNotes[a.id] && (
-                        <div className="card-notes-area">
-                          <textarea className="card-notes-input"
-                            value={a.notes||""}
-                            onChange={e=>updateNote(a.id, e.target.value)}
-                            placeholder="Add details, links, instructions for your VA…"/>
-                          <div className="notes-dates">
-                            <div className="date-field">
-                              <label className="date-label">📅 Planned date</label>
-                              <input type="date" className="date-input" value={a.plannedDate||""} onChange={e=>updateDate(a.id,"plannedDate",e.target.value)}/>
-                            </div>
-                            <div className="date-field">
-                              <label className="date-label">⏰ Due date</label>
-                              <input type="date" className="date-input" value={a.dueDate||""} onChange={e=>updateDate(a.id,"dueDate",e.target.value)}/>
-                            </div>
-                          </div>
-                          <ImageGallery actionId={a.id} images={a.images}
-                            onAdd={addImage} onRemove={removeImage} onLightbox={setLightboxSrc}/>
+                      <span className="section-count">{sectionActions.length}</span>
+                      {!isUnsectioned && (
+                        <div className="section-actions-row" onClick={e=>e.stopPropagation()}>
+                          <button className="section-btn" onClick={()=>setEditingSection(sectionId)}>✏️ rename</button>
+                          <button className="section-btn danger" onClick={()=>deleteSection(sectionId)}>✕ delete</button>
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
-              )
-            )}
-
-            {/* ── LIST ── */}
-            {view==="list" && (
-              actions.length===0 ? (
-                <div className="empty-state"><div className="e-icon">🌿</div><p>All clear — add an action above.</p></div>
-              ) : (
-                <div className="list-view">
-                  {actions.map((a,i)=>(
-                    <React.Fragment key={a.id}>
-                      <div className="list-item" style={{animationDelay:`${i*0.035}s`}}>
-                        <div className="list-dot" style={{background:a.color}}/>
-                        <div className="list-icon">{a.icon}</div>
-                        <div className="list-content">
-                          <div className="list-title">{a.title}</div>
-                          <div className="list-meta">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
-                        </div>
-                        <button className="list-notes-btn" onClick={()=>toggleNote(a.id)}>
-                          {expandedNotes[a.id] ? "▲" : (a.notes ? "📝 notes" : "+ notes")}
-                        </button>
-                        <button className="list-done-btn" onClick={()=>markDone(a.id)}>Done ✓</button>
+                    {/* Section add bar */}
+                    {!collapsed && !isUnsectioned && (
+                      <div className="add-bar" style={{marginBottom:12,background:"rgba(253,246,232,0.5)"}}>
+                        <input value={newTitle} onChange={e=>setNewTitle(e.target.value)}
+                          onKeyDown={e=>e.key==="Enter"&&addAction(sectionId)}
+                          placeholder={`Add action to ${sectionTitle}…`}/>
+                        <select value={newCat} onChange={e=>setNewCat(e.target.value)}>
+                          {CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                        </select>
+                        <button onClick={()=>addAction(sectionId)}>Add</button>
                       </div>
-                      {expandedNotes[a.id] && (
-                        <div className="list-notes-area">
-                          <textarea className="list-notes-input"
-                            value={a.notes||""}
-                            onChange={e=>updateNote(a.id, e.target.value)}
-                            placeholder="Add details, links, instructions for your VA…"/>
-                          <div className="notes-dates">
-                            <div className="date-field">
-                              <label className="date-label">📅 Planned date</label>
-                              <input type="date" className="date-input" value={a.plannedDate||""} onChange={e=>updateDate(a.id,"plannedDate",e.target.value)}/>
-                            </div>
-                            <div className="date-field">
-                              <label className="date-label">⏰ Due date</label>
-                              <input type="date" className="date-input" value={a.dueDate||""} onChange={e=>updateDate(a.id,"dueDate",e.target.value)}/>
-                            </div>
-                          </div>
-                          <ImageGallery actionId={a.id} images={a.images}
-                            onAdd={addImage} onRemove={removeImage} onLightbox={setLightboxSrc}/>
-                        </div>
-                      )}
-                    </React.Fragment>
-                  ))}
+                    )}
+                    {/* Actions */}
+                    {!collapsed && (
+                      sectionActions.length===0
+                        ? <div style={{padding:"12px 0",color:"var(--muted)",fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",fontSize:17}}>No actions yet — add one above</div>
+                        : view==="visual"
+                          ? <div className="cards-canvas">{sectionActions.map((a,i)=>renderCard(a,i,sectionId))}</div>
+                          : <div className="list-view">{sectionActions.map((a,i)=>renderListItem(a,i,sectionId))}</div>
+                    )}
+                  </div>
+                );
+              };
+
+              return (
+                <div>
+                  {/* Sectioned actions */}
+                  {sections.map(s => renderSection(s.id, s.title, false))}
+                  {/* Unsectioned actions */}
+                  {renderSection(null, "Other Actions", true)}
+                  {/* Add section button */}
+                  <button className="add-section-btn" onClick={addSection}>
+                    ＋ Add Section
+                  </button>
                 </div>
-              )
-            )}
+              );
+            })()}
 
             {/* ── CALENDAR ── */}
             {view==="calendar" && (() => {
@@ -1623,6 +1868,74 @@ function App() {
         <div className="lightbox" onClick={()=>setLightboxSrc(null)}>
           <button className="lightbox-close" onClick={()=>setLightboxSrc(null)}>✕</button>
           <img src={lightboxSrc} alt="" onClick={e=>e.stopPropagation()}/>
+        </div>
+      )}
+
+      {/* ── PRINT SHEET — hidden until window.print() ── */}
+      {printContent && (
+        <div className="print-sheet">
+          <div className="ps-header" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
+            <div>
+              <div style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:"#A07820",marginBottom:6,fontFamily:"'Jost',sans-serif"}}>Words That Deliver · Action Dashboard</div>
+              <div className="ps-title">{printContent.title}</div>
+            </div>
+            <div style={{fontSize:13,color:"#888",textAlign:"right",fontFamily:"'Jost',sans-serif"}}>{printContent.dateStr}</div>
+          </div>
+          <div style={{fontSize:13,color:"#888",fontFamily:"'Jost',sans-serif",marginBottom:20}}>
+            {printContent.count} action{printContent.count!==1?"s":""} {printContent.todayOnly?"scheduled for today":"remaining"}
+          </div>
+          {printContent.goal && (
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",color:"#A07820",borderLeft:"3px solid #A07820",padding:"10px 16px",marginBottom:24,background:"rgba(160,120,32,0.05)",borderRadius:"0 8px 8px 0"}}>
+              🎯 {printContent.goal}
+            </div>
+          )}
+          {printContent.count===0 ? (
+            <p style={{color:"#888",fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",fontSize:18}}>Nothing scheduled for today — enjoy the space! ✨</p>
+          ) : printContent.grouped.map((group, gi) => (
+            <div key={gi}>
+              {group.label && (
+                <div style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:group.isGold?"#A07820":"#888",fontFamily:"'Jost',sans-serif",margin:"24px 0 8px",paddingBottom:6,borderBottom:"1px solid #eee"}}>
+                  {group.label}
+                </div>
+              )}
+              {group.items.map(a => {
+                const cat = CATS.find(c=>c.id===a.cat);
+                return (
+                  <div key={a.id} className="ps-item">
+                    <div className="ps-checkbox"/>
+                    <div className="ps-content">
+                      <div className="ps-cat">{a.icon} {cat?.label||a.cat}</div>
+                      <div className="ps-item-title">{a.title}</div>
+                      {a.notes && <div className="ps-notes">{a.notes}</div>}
+                      {(a.bullets||[]).length>0 && (
+                        <ul style={{margin:"4px 0 4px 16px",padding:0,fontSize:13,color:"#555",fontFamily:"'Jost',sans-serif"}}>
+                          {a.bullets.map(b=><li key={b.id}>{b.text}</li>)}
+                        </ul>
+                      )}
+                      {(a.links||[]).length>0 && (
+                        <div style={{marginTop:4}}>
+                          {a.links.map(l=>(
+                            <div key={l.id} style={{fontSize:12,color:"#4A7B9D",fontFamily:"'Jost',sans-serif"}}>
+                              🔗 {l.title} — {l.url}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {(a.plannedDate||a.dueDate) && (
+                        <div className="ps-dates">
+                          {a.plannedDate && <span className="ps-date-planned">📅 {new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}{a.plannedDateTo?" → "+new Date(a.plannedDateTo).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):""}</span>}
+                          {a.dueDate && <span className="ps-date-due">⏰ Due: {new Date(a.dueDate).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}</span>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+          <div style={{marginTop:40,textAlign:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:15,fontStyle:"italic",color:"#A07820"}}>
+            Your Sparkle is the key that opens doors
+          </div>
         </div>
       )}
 
