@@ -895,43 +895,30 @@ function NotesPanel({ a, sections, onNote, onDate, onBullet, onBulletUpdate, onB
   linkDraft, onLinkField, onAddLink, onDeleteLink, onMoveSection, onAddImage, onRemoveImage, onLightbox }) {
   return (
     <div>
-      {/* Notes text */}
-      <textarea className="card-notes-input" value={a.notes||""} onChange={e=>onNote(a.id,e.target.value)}
-        placeholder="Add details, instructions for your VA…"/>
-
-      {/* Dates — from/to + due */}
-      <div className="notes-dates">
-        <div className="date-field">
-          <label className="date-label">📅 Planned from</label>
-          <input type="date" className="date-input" value={a.plannedDate||""} onChange={e=>onDate(a.id,"plannedDate",e.target.value)}/>
-        </div>
-        <div className="date-field">
-          <label className="date-label">📅 Planned to</label>
-          <input type="date" className="date-input" value={a.plannedDateTo||""} onChange={e=>onDate(a.id,"plannedDateTo",e.target.value)}/>
-        </div>
-        <div className="date-field">
-          <label className="date-label">⏰ Due date</label>
-          <input type="date" className="date-input" value={a.dueDate||""} onChange={e=>onDate(a.id,"dueDate",e.target.value)}/>
-        </div>
-      </div>
-
-      {/* Bullet points */}
+      {/* 1. Details (bullets) */}
       <div className="notes-bullets-wrap">
-        <div className="notes-section-label">• Bullet Points</div>
+        <div className="notes-section-label">• Details</div>
         {(a.bullets||[]).map((b,idx)=>(
           <div key={b.id} className="bullet-item">
             <span className="bullet-dot">•</span>
             <input className="bullet-input" value={b.text} autoFocus={idx===(a.bullets.length-1)&&b.text===""}
               onChange={e=>onBulletUpdate(a.id,b.id,e.target.value)}
               onKeyDown={e=>onBulletKey(e,a.id,b.id,idx,a.bullets||[])}
-              placeholder="Type a point…"/>
+              placeholder="Type a detail…"/>
             <button className="bullet-del" onClick={()=>onBulletDelete(a.id,b.id)}>✕</button>
           </div>
         ))}
-        <button className="bullet-add" onClick={()=>onBullet(a.id)}>+ Add bullet</button>
+        <button className="bullet-add" onClick={()=>onBullet(a.id)}>+ Add detail</button>
       </div>
 
-      {/* Links */}
+      {/* 2. Notes */}
+      <div className="notes-bullets-wrap">
+        <div className="notes-section-label">📝 Notes</div>
+        <textarea className="card-notes-input" value={a.notes||""} onChange={e=>onNote(a.id,e.target.value)}
+          placeholder="Context, instructions for your VA, anything useful…"/>
+      </div>
+
+      {/* 3. Links */}
       <div className="notes-links-wrap">
         <div className="notes-section-label">🔗 Links</div>
         {(a.links||[]).map(l=>(
@@ -951,6 +938,25 @@ function NotesPanel({ a, sections, onNote, onDate, onBullet, onBulletUpdate, onB
             onChange={e=>onLinkField(a.id,"url",e.target.value)}
             onKeyDown={e=>e.key==="Enter"&&onAddLink(a.id)}/>
           <button className="add-link-btn" onClick={()=>onAddLink(a.id)}>Add</button>
+        </div>
+      </div>
+
+      {/* 4. Dates */}
+      <div className="notes-bullets-wrap">
+        <div className="notes-section-label">📅 Dates</div>
+        <div className="notes-dates">
+          <div className="date-field">
+            <label className="date-label">Planned from</label>
+            <input type="date" className="date-input" value={a.plannedDate||""} onChange={e=>onDate(a.id,"plannedDate",e.target.value)}/>
+          </div>
+          <div className="date-field">
+            <label className="date-label">Planned to</label>
+            <input type="date" className="date-input" value={a.plannedDateTo||""} onChange={e=>onDate(a.id,"plannedDateTo",e.target.value)}/>
+          </div>
+          <div className="date-field">
+            <label className="date-label">⏰ Due date</label>
+            <input type="date" className="date-input" value={a.dueDate||""} onChange={e=>onDate(a.id,"dueDate",e.target.value)}/>
+          </div>
         </div>
       </div>
 
