@@ -489,6 +489,15 @@
     .bullet-item:hover .bullet-del { opacity: 1; }
     .bullet-add { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; font-family: 'Jost', sans-serif; padding: 4px 0; margin-top: 2px; transition: color 0.15s; }
     .bullet-add:hover { color: var(--gold); }
+    .bullet-check {
+      width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border);
+      background: white; cursor: pointer; font-size: 11px; color: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.15s; padding: 0;
+    }
+    .bullet-check.checked { background: var(--gold); border-color: var(--gold); }
+    .bullet-check:hover:not(.checked) { border-color: var(--gold); }
+    .bullet-done .bullet-input { text-decoration: line-through; color: var(--muted); }
 
     /* ── Links ── */
     .notes-links-wrap { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
@@ -891,7 +900,7 @@ function ImageGallery({ actionId, images, onAdd, onRemove, onLightbox }) {
 }
 
 // ── Notes Panel Component ─────────────────────────────────────────────
-function NotesPanel({ a, sections, onNote, onDate, onBullet, onBulletUpdate, onBulletDelete, onBulletKey,
+function NotesPanel({ a, sections, onNote, onDate, onBullet, onBulletUpdate, onBulletDelete, onBulletKey, onBulletToggle,
   linkDraft, onLinkField, onAddLink, onDeleteLink, onMoveSection, onAddImage, onRemoveImage, onLightbox }) {
   return (
     <div>
@@ -899,12 +908,15 @@ function NotesPanel({ a, sections, onNote, onDate, onBullet, onBulletUpdate, onB
       <div className="notes-bullets-wrap">
         <div className="notes-section-label">• Details</div>
         {(a.bullets||[]).map((b,idx)=>(
-          <div key={b.id} className="bullet-item">
-            <span className="bullet-dot">•</span>
+          <div key={b.id} className={`bullet-item${b.done?" bullet-done":""}`}>
+            <button className={`bullet-check${b.done?" checked":""}`} onClick={()=>onBulletToggle(a.id,b.id)}>
+              {b.done ? "✓" : ""}
+            </button>
             <input className="bullet-input" value={b.text} autoFocus={idx===(a.bullets.length-1)&&b.text===""}
               onChange={e=>onBulletUpdate(a.id,b.id,e.target.value)}
               onKeyDown={e=>onBulletKey(e,a.id,b.id,idx,a.bullets||[])}
-              placeholder="Type a detail…"/>
+              placeholder="Type a detail…"
+              style={b.done?{textDecoration:"line-through",color:"var(--muted)"}:{}}/>
             <button className="bullet-del" onClick={()=>onBulletDelete(a.id,b.id)}>✕</button>
           </div>
         ))}
@@ -1230,6 +1242,22 @@ function App() {
   function bulletKeyDown(e, actionId, bulletId, idx, bullets) {
     if (e.key==="Enter") { e.preventDefault(); addBullet(actionId); }
     if (e.key==="Backspace" && bullets[idx].text==="" && bullets.length>1) { e.preventDefault(); deleteBullet(actionId, bulletId); }
+  }
+  function toggleBullet(actionId, bulletId) {
+    setActions(prev => {
+      const updated = prev.map(a => {
+        if (a.id !== actionId) return a;
+        const bullets = (a.bullets||[]).map(b => b.id===bulletId ? {...b, done:!b.done} : b);
+        const allDone = bullets.length > 0 && bullets.every(b => b.done);
+        return {...a, bullets, _autoComplete: allDone};
+      });
+      // If all bullets are now ticked, fire markDone after state settles
+      const action = updated.find(a => a.id===actionId);
+      if (action?._autoComplete) {
+        setTimeout(() => markDone(actionId), 400);
+      }
+      return updated.map(a => a.id===actionId ? {...a, _autoComplete: undefined} : a);
+    });
   }
 
   // ── Links ──
@@ -1572,6 +1600,7 @@ function App() {
                 onNote: updateNote, onDate: updateDate,
                 onBullet: addBullet, onBulletUpdate: updateBullet,
                 onBulletDelete: deleteBullet, onBulletKey: bulletKeyDown,
+                onBulletToggle: toggleBullet,
                 linkDraft: getLinkDraft(a.id),
                 onLinkField: setLinkField, onAddLink: addLink, onDeleteLink: deleteLink,
                 onMoveSection: moveActionToSection,
@@ -1590,6 +1619,11 @@ function App() {
                       {expandedNotes[a.id] ? "▲ hide" : ((a.notes||a.bullets?.length||a.links?.length||a.plannedDate||a.dueDate) ? "📝 details" : "+ details")}
                     </button>
                   </div>
+                  {(a.bullets||[]).length>0 && !expandedNotes[a.id] && (
+                    <div style={{fontSize:12,color:"var(--muted)",fontFamily:"'Jost',sans-serif",marginTop:6}}>
+                      {(a.bullets.filter(b=>b.done).length)}/{a.bullets.length} details done
+                    </div>
+                  )}
                   {(a.plannedDate||a.dueDate) && !expandedNotes[a.id] && (
                     <div className="card-date-badge">
                       {a.plannedDate && <span className="date-badge planned">📅 {new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}{a.plannedDateTo ? " → "+new Date(a.plannedDateTo).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : ""}</span>}
