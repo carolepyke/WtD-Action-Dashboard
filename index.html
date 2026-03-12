@@ -524,6 +524,73 @@
     .card-move-btn { background: none; border: 1px solid var(--border); border-radius: 4px; width: 24px; height: 24px; cursor: pointer; font-size: 11px; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
     .card-move-btn:hover { border-color: var(--gold); color: var(--gold); background: white; }
 
+    /* ── Edit & Delete action buttons ── */
+    .action-edit-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      padding: 4px 8px; font-size: 13px; cursor: pointer; color: var(--muted);
+      font-family: 'Jost', sans-serif; transition: all 0.15s; flex-shrink: 0;
+    }
+    .action-edit-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(160,120,32,0.05); }
+    .action-delete-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      padding: 4px 8px; font-size: 13px; cursor: pointer; color: var(--muted);
+      font-family: 'Jost', sans-serif; transition: all 0.15s; flex-shrink: 0;
+    }
+    .action-delete-btn:hover { border-color: #C0392B; color: #C0392B; background: rgba(192,57,43,0.05); }
+
+    /* ── Edit inline on card ── */
+    .card-edit-title {
+      width: 100%; border: none; border-bottom: 2px solid var(--gold); background: transparent;
+      font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--dark);
+      outline: none; padding: 4px 0; margin-bottom: 8px;
+    }
+    .card-edit-cat {
+      width: 100%; border: 1px solid var(--border); border-radius: 7px; padding: 6px 10px;
+      font-family: 'Jost', sans-serif; font-size: 14px; color: var(--dark);
+      background: white; outline: none; margin-bottom: 8px;
+    }
+    .card-edit-save {
+      padding: 6px 16px; border-radius: 7px; border: none; background: var(--gold);
+      color: white; font-family: 'Jost', sans-serif; font-size: 13px; cursor: pointer;
+    }
+    .card-edit-cancel {
+      padding: 6px 16px; border-radius: 7px; border: 1px solid var(--border);
+      background: white; color: var(--muted); font-family: 'Jost', sans-serif;
+      font-size: 13px; cursor: pointer; margin-left: 6px;
+    }
+
+    /* ── Delete confirmation modal ── */
+    .delete-modal-overlay {
+      position: fixed; inset: 0; background: rgba(44,31,14,0.35);
+      display: flex; align-items: center; justify-content: center; z-index: 500;
+    }
+    .delete-modal {
+      background: white; border-radius: 16px; padding: 32px 36px; max-width: 420px;
+      width: 90%; box-shadow: 0 20px 60px rgba(44,31,14,0.15);
+    }
+    .delete-modal h3 {
+      font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300;
+      color: var(--dark); margin-bottom: 10px;
+    }
+    .delete-modal p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
+    .delete-modal-input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; font-size: 15px; font-family: 'Jost', sans-serif;
+      color: var(--dark); outline: none; margin-bottom: 16px; transition: border-color 0.2s;
+    }
+    .delete-modal-input:focus { border-color: #C0392B; }
+    .delete-modal-confirm {
+      padding: 10px 22px; border-radius: 8px; border: none; background: #C0392B;
+      color: white; font-family: 'Jost', sans-serif; font-size: 14px; cursor: pointer;
+      opacity: 0.4; transition: opacity 0.2s;
+    }
+    .delete-modal-confirm.ready { opacity: 1; }
+    .delete-modal-cancel {
+      padding: 10px 22px; border-radius: 8px; border: 1px solid var(--border);
+      background: white; color: var(--muted); font-family: 'Jost', sans-serif;
+      font-size: 14px; cursor: pointer; margin-left: 8px;
+    }
+
     /* ── Print styles ── */
     .print-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: white; color: var(--muted); font-size: 14px; font-family: 'Jost', sans-serif; cursor: pointer; transition: all 0.15s; }
     .print-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -1291,6 +1358,28 @@ function App() {
     });
   }
 
+  // ── Edit action ──
+  const [editingAction, setEditingAction] = useState(null); // {id, title, cat}
+  function startEdit(a) { setEditingAction({ id: a.id, title: a.title, cat: a.cat }); }
+  function saveEdit() {
+    if (!editingAction) return;
+    const cat = CATS.find(c => c.id === editingAction.cat) || CATS[0];
+    setActions(p => p.map(a => a.id===editingAction.id
+      ? {...a, title: editingAction.title, cat: editingAction.cat, icon: cat.icon, color: cat.color}
+      : a));
+    setEditingAction(null);
+  }
+
+  // ── Delete action ──
+  const [deletePrompt, setDeletePrompt] = useState(null); // {id, confirmText}
+  function startDelete(id) { setDeletePrompt({ id, confirmText: "" }); }
+  function confirmDelete() {
+    if (deletePrompt?.confirmText?.toLowerCase() === "delete") {
+      setActions(p => p.filter(a => a.id !== deletePrompt.id));
+      setDeletePrompt(null);
+    }
+  }
+
   // ── Calendar helpers ──
   function allCalEvents() {
     // Gather from current project's actions only
@@ -1607,42 +1696,72 @@ function App() {
                 onAddImage: addImage, onRemoveImage: removeImage, onLightbox: setLightboxSrc
               });
 
-              const renderCard = (a, i, sectionId) => (
+              const renderCard = (a, i, sectionId) => {
+                const isEditing = editingAction?.id === a.id;
+                return (
                 <div key={a.id} className="action-card" style={{"--accent":a.color,animationDelay:`${i*0.05}s`}}>
                   <button className="card-done-btn" onClick={()=>markDone(a.id)}>✓</button>
                   <span className="card-icon">{a.icon}</span>
                   <div className="card-cat-label">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
-                  <div className="card-title">{a.title}</div>
-                  <div className="card-footer">
-                    <button className="card-cta" onClick={()=>markDone(a.id)}>Mark as done <span>→</span></button>
-                    <button className="card-notes-btn" onClick={()=>toggleNote(a.id)}>
-                      {expandedNotes[a.id] ? "▲ hide" : ((a.notes||a.bullets?.length||a.links?.length||a.plannedDate||a.dueDate) ? "📝 details" : "+ details")}
-                    </button>
-                  </div>
-                  {(a.bullets||[]).length>0 && !expandedNotes[a.id] && (
-                    <div style={{fontSize:12,color:"var(--muted)",fontFamily:"'Jost',sans-serif",marginTop:6}}>
-                      {(a.bullets.filter(b=>b.done).length)}/{a.bullets.length} details done
-                    </div>
-                  )}
-                  {(a.plannedDate||a.dueDate) && !expandedNotes[a.id] && (
-                    <div className="card-date-badge">
-                      {a.plannedDate && <span className="date-badge planned">📅 {new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}{a.plannedDateTo ? " → "+new Date(a.plannedDateTo).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : ""}</span>}
-                      {a.dueDate && <span className={`date-badge due${isDateSoon(a.dueDate)?" soon":""}`}>⏰ {new Date(a.dueDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>}
-                    </div>
-                  )}
-                  {expandedNotes[a.id] && (
-                    <div className="card-notes-area">
-                      <NotesPanel {...notesProps(a)}/>
-                    </div>
-                  )}
-                  <div className="card-move-btns">
-                    <button className="card-move-btn" onClick={()=>moveAction(a.id,-1,sectionId)} title="Move up">↑</button>
-                    <button className="card-move-btn" onClick={()=>moveAction(a.id,1,sectionId)} title="Move down">↓</button>
-                  </div>
-                </div>
-              );
 
-              const renderListItem = (a, i, sectionId) => (
+                  {isEditing ? (
+                    <div style={{marginTop:6}}>
+                      <input className="card-edit-title" autoFocus
+                        value={editingAction.title}
+                        onChange={e=>setEditingAction(p=>({...p,title:e.target.value}))}
+                        onKeyDown={e=>e.key==="Enter"&&saveEdit()}/>
+                      <select className="card-edit-cat" value={editingAction.cat}
+                        onChange={e=>setEditingAction(p=>({...p,cat:e.target.value}))}>
+                        {CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                      </select>
+                      <button className="card-edit-save" onClick={saveEdit}>Save</button>
+                      <button className="card-edit-cancel" onClick={()=>setEditingAction(null)}>Cancel</button>
+                    </div>
+                  ) : (
+                    <div className="card-title">{a.title}</div>
+                  )}
+
+                  {!isEditing && (
+                    <>
+                      <div className="card-footer">
+                        <button className="card-cta" onClick={()=>markDone(a.id)}>Mark as done <span>→</span></button>
+                        <button className="card-notes-btn" onClick={()=>toggleNote(a.id)}>
+                          {expandedNotes[a.id] ? "▲ hide" : ((a.notes||a.bullets?.length||a.links?.length||a.plannedDate||a.dueDate) ? "📝 details" : "+ details")}
+                        </button>
+                      </div>
+                      {(a.bullets||[]).length>0 && !expandedNotes[a.id] && (
+                        <div style={{fontSize:12,color:"var(--muted)",fontFamily:"'Jost',sans-serif",marginTop:6}}>
+                          {(a.bullets.filter(b=>b.done).length)}/{a.bullets.length} details done
+                        </div>
+                      )}
+                      {(a.plannedDate||a.dueDate) && !expandedNotes[a.id] && (
+                        <div className="card-date-badge">
+                          {a.plannedDate && <span className="date-badge planned">📅 {new Date(a.plannedDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}{a.plannedDateTo ? " → "+new Date(a.plannedDateTo).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : ""}</span>}
+                          {a.dueDate && <span className={`date-badge due${isDateSoon(a.dueDate)?" soon":""}`}>⏰ {new Date(a.dueDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>}
+                        </div>
+                      )}
+                      {expandedNotes[a.id] && (
+                        <div className="card-notes-area">
+                          <NotesPanel {...notesProps(a)}/>
+                        </div>
+                      )}
+                      <div style={{display:"flex",gap:6,marginTop:10,justifyContent:"flex-end"}}>
+                        <button className="action-edit-btn" onClick={()=>startEdit(a)}>✏️ edit</button>
+                        <button className="action-delete-btn" onClick={()=>startDelete(a.id)}>🗑️ delete</button>
+                      </div>
+                      <div className="card-move-btns">
+                        <button className="card-move-btn" onClick={()=>moveAction(a.id,-1,sectionId)} title="Move up">↑</button>
+                        <button className="card-move-btn" onClick={()=>moveAction(a.id,1,sectionId)} title="Move down">↓</button>
+                      </div>
+                    </>
+                  )}
+                </div>
+                );
+              };
+
+              const renderListItem = (a, i, sectionId) => {
+                const isEditing = editingAction?.id === a.id;
+                return (
                 <React.Fragment key={a.id}>
                   <div className="list-item" style={{animationDelay:`${i*0.035}s`}}>
                     <div className="action-move-btns">
@@ -1652,13 +1771,36 @@ function App() {
                     <div className="list-dot" style={{background:a.color}}/>
                     <div className="list-icon">{a.icon}</div>
                     <div className="list-content">
-                      <div className="list-title">{a.title}</div>
-                      <div className="list-meta">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
+                      {isEditing ? (
+                        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                          <input className="card-edit-title" style={{fontSize:15}} autoFocus
+                            value={editingAction.title}
+                            onChange={e=>setEditingAction(p=>({...p,title:e.target.value}))}
+                            onKeyDown={e=>e.key==="Enter"&&saveEdit()}/>
+                          <select className="card-edit-cat" value={editingAction.cat}
+                            onChange={e=>setEditingAction(p=>({...p,cat:e.target.value}))}>
+                            {CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                          </select>
+                          <div style={{display:"flex",gap:6}}>
+                            <button className="card-edit-save" onClick={saveEdit}>Save</button>
+                            <button className="card-edit-cancel" onClick={()=>setEditingAction(null)}>Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="list-title">{a.title}</div>
+                          <div className="list-meta">{CATS.find(c=>c.id===a.cat)?.label||a.cat}</div>
+                        </>
+                      )}
                     </div>
-                    <button className="list-notes-btn" onClick={()=>toggleNote(a.id)}>
-                      {expandedNotes[a.id] ? "▲" : ((a.notes||a.bullets?.length||a.links?.length) ? "📝 details" : "+ details")}
-                    </button>
-                    <button className="list-done-btn" onClick={()=>markDone(a.id)}>Done ✓</button>
+                    {!isEditing && <>
+                      <button className="list-notes-btn" onClick={()=>toggleNote(a.id)}>
+                        {expandedNotes[a.id] ? "▲" : ((a.notes||a.bullets?.length||a.links?.length) ? "📝 details" : "+ details")}
+                      </button>
+                      <button className="action-edit-btn" onClick={()=>startEdit(a)}>✏️</button>
+                      <button className="action-delete-btn" onClick={()=>startDelete(a.id)}>🗑️</button>
+                      <button className="list-done-btn" onClick={()=>markDone(a.id)}>Done ✓</button>
+                    </>}
                   </div>
                   {expandedNotes[a.id] && (
                     <div className="list-notes-area">
@@ -1666,7 +1808,8 @@ function App() {
                     </div>
                   )}
                 </React.Fragment>
-              );
+                );
+              };
 
               const renderSection = (sectionId, sectionTitle, isUnsectioned) => {
                 const sectionActions = actions.filter(a => isUnsectioned ? !a.sectionId : a.sectionId===sectionId);
@@ -1908,6 +2051,27 @@ function App() {
         <div className="lightbox" onClick={()=>setLightboxSrc(null)}>
           <button className="lightbox-close" onClick={()=>setLightboxSrc(null)}>✕</button>
           <img src={lightboxSrc} alt="" onClick={e=>e.stopPropagation()}/>
+        </div>
+      )}
+
+      {/* ── DELETE CONFIRMATION MODAL ── */}
+      {deletePrompt && (
+        <div className="delete-modal-overlay" onClick={()=>setDeletePrompt(null)}>
+          <div className="delete-modal" onClick={e=>e.stopPropagation()}>
+            <h3>Delete this action?</h3>
+            <p>This can't be undone. Type <strong>delete</strong> below to confirm.</p>
+            <input className="delete-modal-input" autoFocus
+              placeholder="Type delete to confirm…"
+              value={deletePrompt.confirmText}
+              onChange={e=>setDeletePrompt(p=>({...p,confirmText:e.target.value}))}
+              onKeyDown={e=>e.key==="Enter"&&confirmDelete()}/>
+            <div style={{display:"flex",gap:8}}>
+              <button
+                className={`delete-modal-confirm${deletePrompt.confirmText.toLowerCase()==="delete"?" ready":""}`}
+                onClick={confirmDelete}>Delete action</button>
+              <button className="delete-modal-cancel" onClick={()=>setDeletePrompt(null)}>Cancel</button>
+            </div>
+          </div>
         </div>
       )}
 
